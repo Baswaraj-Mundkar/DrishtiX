@@ -1,0 +1,113 @@
+flowchart TD
+    %% Define Entities
+    User["User"]
+    Report["Report (Fake News)"]
+    FactCheck["FactCheck Query"]
+    Quiz["Quiz Result"]
+    Team["Team Member"]
+    Learn["Learning Topic"]
+
+    %% Define Relationships
+    submits{"submits"}
+    analyzes{"analyzes"}
+    takes{"takes"}
+    edits{"edits (Admin only)"}
+    reads{"reads"}
+
+    %% Connections
+    User ---|1| submits ---|M| Report
+    User ---|1| analyzes ---|M| FactCheck
+    User ---|1| takes ---|M| Quiz
+    User ---|1..M| edits ---|M| Team
+    User ---|M| reads ---|M| Learn
+
+    %% User Attributes
+    u_name(["username (PK)"])
+    u_role(["role"])
+    u_pwd(["password"])
+    u_lang(["pref_lang"])
+
+    User --- u_name
+    User --- u_role
+    User --- u_pwd
+    User --- u_lang
+
+    %% Report Attributes
+    r_id(["report_id (PK)"])
+    r_head(["headline"])
+    r_plat(["platform"])
+    r_desc(["description"])
+    r_stat(["admin_status"])
+    r_lat(["latitude"])
+    r_lng(["longitude"])
+    r_date(["date_submitted"])
+
+    Report --- r_id
+    Report --- r_head
+    Report --- r_plat
+    Report --- r_desc
+    Report --- r_stat
+    Report --- r_lat
+    Report --- r_lng
+    Report --- r_date
+
+    %% FactCheck Query Attributes
+    fc_id(["query_id (PK)"])
+    fc_mode(["mode (Text/Image)"])
+    fc_input(["input_text"])
+    fc_class(["classification"])
+    fc_conf(["confidence_score"])
+    fc_api(["google_api_match"])
+    fc_ai(["ai_heuristics"])
+
+    FactCheck --- fc_id
+    FactCheck --- fc_mode
+    FactCheck --- fc_input
+    FactCheck --- fc_class
+    FactCheck --- fc_conf
+    FactCheck --- fc_api
+    FactCheck --- fc_ai
+
+    %% Quiz Result Attributes
+    q_id(["attempt_id (PK)"])
+    q_score(["final_score (/10)"])
+    q_badge(["earned_badge"])
+    q_date(["attempt_date"])
+
+    Quiz --- q_id
+    Quiz --- q_score
+    Quiz --- q_badge
+    Quiz --- q_date
+    
+    %% Team Member Attributes (About Editor)
+    tm_id(["member_id (PK)"])
+    tm_name(["name"])
+    tm_title(["job_title"])
+    tm_img(["image_base64"])
+    tm_desc(["bio_details"])
+
+    Team --- tm_id
+    Team --- tm_name
+    Team --- tm_title
+    Team --- tm_img
+    Team --- tm_desc
+
+    %% Learning Topic Attributes
+    lt_id(["topic_id (PK)"])
+    lt_title(["topic_title"])
+    lt_cat(["category"])
+    lt_content(["content_body"])
+
+    Learn --- lt_id
+    Learn --- lt_title
+    Learn --- lt_cat
+    Learn --- lt_content
+
+    %% Styles for Visual Appeal Matches Given Diagram Style
+    classDef entity fill:#b2e189,stroke:#333,stroke-width:1px,color:black,font-weight:bold;
+    classDef attribute fill:#d0f0ba,stroke:#333,stroke-width:1px,color:black;
+    classDef relation fill:#d4d84c,stroke:#333,stroke-width:1px,color:black,font-weight:bold;
+
+    class User,Report,FactCheck,Quiz,Team,Learn entity;
+    class u_name,u_role,u_pwd,u_lang,r_id,r_head,r_plat,r_desc,r_stat,r_lat,r_lng,r_date,fc_id,fc_mode,fc_input,fc_class,fc_conf,fc_api,fc_ai,q_id,q_score,q_badge,q_date,tm_id,tm_name,tm_title,tm_img,tm_desc,lt_id,lt_title,lt_cat,lt_content attribute;
+    class submits,analyzes,takes,edits,reads relation;

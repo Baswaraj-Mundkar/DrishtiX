@@ -1,0 +1,165 @@
+<!DOCTYPE html><html lang="en"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Report Fake News - DrishtiX</title>
+    <!-- Leaflet CSS & JS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,100..900;1,100..900&amp;family=Noto+Sans+Bengali:wght@100..900&amp;family=Noto+Sans+Devanagari:wght@100..900&amp;family=Noto+Sans+Gujarati:wght@100..900&amp;family=Noto+Sans+Kannada:wght@100..900&amp;family=Noto+Sans+Tamil:wght@100..900&amp;family=Noto+Sans+Telugu:wght@100..900&amp;display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    
+    <style>
+        .report-form-section {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+        .file-upload {
+            border: 2px dashed var(--accent);
+            padding: 1.5rem;
+            text-align: center;
+            border-radius: var(--radius);
+            cursor: pointer;
+            transition: var(--theme-transition, background-color 0.3s);
+        }
+        .file-upload:hover {
+            background: var(--accent-soft);
+        }
+    </style>
+    <script src="config.js"></script>
+</head>
+<body>
+
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="logo">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path><circle cx="12" cy="11.5" r="3"></circle><path d="M12 8.5v0"></path></svg>
+                DrishtiX
+            </a>
+            <button class="hamburger">&#9776;</button>
+            <ul class="nav-links">
+                <li><a href="index.html" data-i18n="nav_home">Home</a></li>
+                <li><a href="learn.html" data-i18n="nav_learn">Learn</a></li>
+                <li><a href="checker.html" data-i18n="nav_checker">Fact Check</a></li>
+                <li><a href="examples.html" data-i18n="nav_examples">Examples</a></li>
+                <li><a href="quiz.html" data-i18n="nav_quiz">Quiz</a></li>
+                <li><a href="report.html" class="active" data-i18n="nav_report">Report</a></li>
+                <li><a href="dashboard.html" data-i18n="nav_dashboard">Dashboard</a></li>
+                <li><a href="index.html#about" data-i18n="nav_about">About</a></li>
+            </ul>
+        
+            <select id="lang-switcher">
+                <option value="en">English</option>
+                <option value="hi">हिन्दी</option>
+                <option value="mr">मराठी</option>
+                <option value="ta">தமிழ்</option>
+                <option value="te">తెలుగు</option>
+                <option value="kn">ಕನ್ನಡ</option>
+                <option value="gu">ગુજરાતી</option>
+                <option value="bn">বাংলা</option>
+            </select>
+</div>
+    </nav>
+
+    <!-- Page Header -->
+    <header class="page-header">
+        <div class="fade-in">
+            <h1 data-i18n="report_h1">Report Fake News</h1>
+            <p data-i18n="report_p1">Help us identify and combat misinformation by providing details about suspicious content you've found online.</p>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <section class="section" style="padding-top: 2rem;">
+        <div class="report-container fade-in" style="transition-delay: 100ms;">
+            
+            <!-- Left Side: Form -->
+            <div class="report-form-section">
+                <h2 data-i18n="form_h2">Submit Details</h2>
+                <form id="report-form">
+                    
+                    <div class="form-group">
+                        <label for="reporterName" data-i18n="lbl_name">Your Name *</label>
+                        <input type="text" id="reporterName" class="form-control" placeholder="Enter your name (e.g. John)" data-i18n="ph_name" required="">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="headline" data-i18n="lbl_headline">News Headline / Claim *</label>
+                        <input type="text" id="headline" class="form-control" placeholder="What is the false claim?" data-i18n="ph_headline" required="">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="newsLink" data-i18n="lbl_link">News Link (Optional)</label>
+                        <input type="url" id="newsLink" class="form-control" placeholder="https://example.com/fake-news" data-i18n="ph_link">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="platform" data-i18n="lbl_platform">Platform *</label>
+                        <select id="platform" class="form-control" required="">
+                            <option value="" disabled="" selected="" data-i18n="opt_plat">Select where you saw this...</option>
+                            <option value="WhatsApp">WhatsApp</option>
+                            <option value="Instagram">Instagram</option>
+                            <option value="Facebook">Facebook</option>
+                            <option value="Twitter">Twitter / X</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="description" data-i18n="lbl_desc">Description / Context *</label>
+                        <textarea id="description" class="form-control" placeholder="Provide any additional context or proof why this is fake..." data-i18n="ph_desc" required=""></textarea>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem;" data-i18n="btn_submit_rpt">Submit Report</button>
+                </form>
+            </div>
+
+            <!-- Right Side: Location Map -->
+            <div class="map-section">
+                <h2 data-i18n="map_h2">Location Impact</h2>
+                <p style="color: var(--text-muted); margin-bottom: 1rem;" data-i18n="map_p2">Pinpoint where this misinformation is spreading most actively.</p>
+                
+                <div id="report-map"></div>
+                
+                <div style="font-size: 0.9rem; margin-top: 0.5rem; display: flex; align-items: center; justify-content: space-between;">
+                    <span style="font-weight: 500;" data-i18n="sel_loc">Selected Location:</span>
+                    <span id="selected-coords" class="location-display" style="padding: 0.25rem 0.75rem;" data-i18n="none_lbl">None</span>
+                </div>
+
+                <div class="map-controls">
+                    <button id="btn-location" class="btn btn-primary" style="background: var(--accent); border: none; box-shadow: var(--shadow);" data-i18n="report_auto_11">
+                        📍 <span data-i18n="btn_loc">Use My Current Location</span>
+                    </button>
+                    
+                    <div style="text-align: center; font-size: 0.85rem; color: var(--text-muted); margin: 0.5rem 0;" data-i18n="txt_or">OR ENTER MANUALLY</div>
+                    
+                    <div style="display: flex; gap: 0.5rem;">
+                        <input type="text" id="city" class="form-control" placeholder="City or Area name" data-i18n="ph_city">
+                        <button id="btn-search-city" class="btn btn-secondary" style="white-space: nowrap; padding: 0.5rem 1rem;" data-i18n="btn_srch">Search</button>
+                    </div>
+                    
+                    <div class="coordinate-inputs" style="margin-top: 0.5rem; display: flex; gap: 0.5rem;">
+                        <input type="number" step="any" id="lat" class="form-control" placeholder="Lat" data-i18n="ph_lat">
+                        <input type="number" step="any" id="lng" class="form-control" placeholder="Lng" data-i18n="ph_lng">
+                        <button id="btn-manual-coords" class="btn btn-secondary" style="padding: 0.5rem 1rem;" data-i18n="btn_set">Set</button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <p data-i18n="footer_copyright">© 2026 DrishtiX Project. Social Media and Fake News Awareness.</p>
+    </footer>
+
+    <script src="config.js"></script>
+    <script src="i18n.js"></script>
+    <script src="script.js"></script>
+
+
+</body></html>

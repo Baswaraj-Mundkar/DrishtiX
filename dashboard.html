@@ -1,0 +1,234 @@
+<!DOCTYPE html><html lang="en"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - DrishtiX</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,100..900;1,100..900&family=Noto+Sans+Bengali:wght@100..900&family=Noto+Sans+Devanagari:wght@100..900&family=Noto+Sans+Gujarati:wght@100..900&family=Noto+Sans+Kannada:wght@100..900&family=Noto+Sans+Tamil:wght@100..900&family=Noto+Sans+Telugu:wght@100..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .tabs { display: flex; gap: 1rem; margin-bottom: 2.5rem; justify-content: center; }
+        .tab-btn { padding: 0.8rem 2rem; border-radius: 50px; background: transparent; border: 2px solid var(--border); color: var(--text); cursor: pointer; font-weight: 600; transition: var(--theme-transition); }
+        .tab-btn.active { background: var(--accent); color: white; border-color: var(--accent); }
+        .reports-grid { display: grid; grid-template-columns: 1fr; gap: 1.5rem; max-width: 900px; margin: 0 auto; }
+        .report-card { padding: 2rem; background: var(--surface); border-radius: var(--radius); border: 1px solid var(--border); box-shadow: var(--shadow-sm); }
+        .report-card h3 { color: var(--accent); margin-bottom: 0.5rem; }
+        .report-meta { display: flex; justify-content: space-between; font-size: 0.9rem; color: var(--text-muted); margin-bottom: 1rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border); }
+        .report-desc { color: var(--text); font-size: 1.05rem; line-height: 1.6; }
+        .mock-login { max-width: 500px; margin: 0 auto 3rem; text-align: center; padding: 2rem; background: var(--surface); border-radius: var(--radius); border: 1px solid var(--border); }
+        .badge { background: var(--accent-soft); color: var(--accent); padding: 0.25rem 0.75rem; border-radius: 50px; font-weight: bold; font-size: 0.8rem; }
+    </style>
+    <script src="config.js"></script>
+</head>
+<body>
+
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="logo">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path><circle cx="12" cy="11.5" r="3"></circle><path d="M12 8.5v0"></path></svg>
+                DrishtiX
+            </a>
+            <button class="hamburger">&#9776;</button>
+            <ul class="nav-links">
+                <li><a href="index.html" data-i18n="nav_home">Home</a></li>
+                <li><a href="learn.html" data-i18n="nav_learn">Learn</a></li>
+                <li><a href="checker.html" data-i18n="nav_checker">Fact Check</a></li>
+                <li><a href="examples.html" data-i18n="nav_examples">Examples</a></li>
+                <li><a href="quiz.html" data-i18n="nav_quiz">Quiz</a></li>
+                <li><a href="report.html" data-i18n="nav_report">Report</a></li>
+                <li><a href="dashboard.html" class="active" data-i18n="nav_dashboard">Dashboard</a></li>
+                <li><a href="index.html#about" data-i18n="nav_about">About</a></li>
+            </ul>
+        
+            <select id="lang-switcher">
+                <option value="en">English</option>
+                <option value="hi">हिन्दी</option>
+                <option value="mr">मರಾठी</option>
+                <option value="ta">தமிழ்</option>
+                <option value="te">తెలుగు</option>
+                <option value="kn">ಕನ್ನಡ</option>
+                <option value="gu">ગુજરાતી</option>
+                <option value="bn">বাংলা</option>
+            </select>
+        </div>
+    </nav>
+
+    <header class="page-header">
+        <div class="fade-in">
+            <h1 data-i18n="dash_h1">Reports Dashboard</h1>
+            <p data-i18n="dash_p1">Manage and view submitted fake news reports.</p>
+        </div>
+    </header>
+
+    <section class="section">
+        
+        <div class="tabs fade-in">
+            <button class="tab-btn active" id="tab-user" onclick="switchTab('user')" data-i18n="tab_user">User View (My Reports)</button>
+            <button class="tab-btn" id="tab-admin" onclick="switchTab('admin')" data-i18n="tab_admin">Admin View (All Reports)</button>
+            
+            <select id="status-filter" class="form-control" style="width: auto; border-radius: 50px; padding: 0 1.5rem;" onchange="renderDashboard()">
+                <option value="All" data-i18n="filter_all">All Statuses</option>
+                <option value="Pending" data-i18n="status_pending">Pending</option>
+                <option value="Verified Fake" data-i18n="status_fake">Verified Fake</option>
+                <option value="Verified True" data-i18n="status_true">Verified True</option>
+            </select>
+        </div>
+
+        <div id="dashboard-content" class="reports-grid fade-in">
+            <!-- Rendered by JS -->
+        </div>
+
+    </section>
+
+    <footer>
+        <p data-i18n="footer_copyright">© 2026 DrishtiX Project. Social Media and Fake News Awareness.</p>
+    </footer>
+
+    <script src="config.js"></script>
+    <script src="i18n.js"></script>
+    <script src="script.js"></script>
+    <script>
+        const currentUser = localStorage.getItem('drishti_current_user');
+        const userRole = localStorage.getItem('drishti_user_role');
+        
+        // Unauthenticated guard
+        if(!currentUser) {
+            document.getElementById('dashboard-content').innerHTML = `
+                <div class="card" style="text-align:center; padding: 3rem 1rem;">
+                    <h3 style="color: var(--text-muted); margin-bottom: 1rem;" data-i18n="auth_req">Authentication Required</h3>
+                    <p style="color: var(--text-muted); margin-bottom: 1.5rem;" data-i18n="auth_p">Please sign in to view your dashboard.</p>
+                    <a href="login.html" class="btn btn-primary" data-i18n="auth_btn">Go to Login</a>
+                </div>
+            `;
+            document.querySelector('.tabs').style.display = 'none';
+        } else {
+            let currentTab = userRole === 'admin' ? 'admin' : 'user';
+
+            // Role specific UI Visibility
+            if(userRole === 'admin') {
+                const tabUser = document.getElementById('tab-user');
+                if(tabUser) tabUser.style.display = 'none';
+                document.getElementById('tab-admin').classList.add('active');
+            } else {
+                const tabAdmin = document.getElementById('tab-admin');
+                if(tabAdmin) tabAdmin.style.display = 'none';
+                document.getElementById('tab-user').classList.add('active');
+                document.getElementById('tab-user').innerText = window.i18n.t('dash_my_reports') || 'My Reports';
+            }
+
+            window.switchTab = function(tab) {
+                currentTab = tab;
+                document.getElementById('tab-user').classList.toggle('active', tab === 'user');
+                const tabAdmin = document.getElementById('tab-admin');
+                if(tabAdmin) tabAdmin.classList.toggle('active', tab === 'admin');
+                renderDashboard();
+            };
+
+            function renderDashboard() {
+                const content = document.getElementById('dashboard-content');
+                
+                fetch('/api/reports')
+                .then(res => res.json())
+                .then(allReports => {
+                    let filtered = [];
+                    if (currentTab === 'user') {
+                        const loggedInName = (currentUser || "").trim().toLowerCase();
+                        filtered = allReports.filter(r => {
+                            const reporterName = (r.Name || r.name || "").trim().toLowerCase();
+                            return reporterName === loggedInName;
+                        });
+                    } else {
+                        filtered = allReports;
+                    }
+
+                    // Apply Status Filter
+                    const filterValue = document.getElementById('status-filter').value;
+                    if(filterValue !== 'All') {
+                        filtered = filtered.filter(r => (r.Status || r.status) === filterValue);
+                    }
+
+                    if (filtered.length === 0) {
+                        content.innerHTML = `
+                            <div class="card" style="text-align:center; padding: 4rem 2rem; border: 2px dashed var(--border);">
+                                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="2" style="margin-bottom: 1rem; opacity: 0.5;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                                <h3 style="color: var(--text-muted); margin-bottom: 1rem;">${window.i18n.t('dash_no_reports') || 'No reports found.'}</h3>
+                                ${currentTab === 'user' ? `<a href="report.html" class="btn btn-primary">Submit a Report</a>` : ''}
+                            </div>`;
+                        return;
+                    }
+
+                    // Reverse to show newest first
+                    filtered.reverse();
+
+                    content.innerHTML = filtered.map(r => {
+                        const status = r.Status || r.status || 'Pending';
+                        const statusKey = status === 'Verified True' ? 'status_true' : status === 'Verified Fake' ? 'status_fake' : 'status_pending';
+                        const statusLabel = window.i18n.t(statusKey);
+                        const id = r.ID || r.id;
+                        
+                        return `
+                            <div class="report-card">
+                                <div class="report-meta">
+                                    <div>
+                                        <strong>${window.i18n.t('dash_reporter')}:</strong> ${r.Name || r.name || 'Anonymous'} &nbsp;&nbsp;|&nbsp;&nbsp;
+                                        <strong>${window.i18n.t('dash_date')}:</strong> ${r.Date || r.date || 'N/A'}
+                                    </div>
+                                    <div>
+                                        <span class="badge" style="background: ${status === 'Verified True' ? 'rgba(16, 185, 129, 0.1)' : status === 'Verified Fake' ? 'rgba(239, 68, 68, 0.1)' : 'rgba(245, 158, 11, 0.1)'}; color: ${status === 'Verified True' ? '#10b981' : status === 'Verified Fake' ? '#ef4444' : '#f59e0b'}; margin-right: 0.5rem;">${statusLabel}</span>
+                                        <span class="badge">${r.Platform || r.platform}</span>
+                                    </div>
+                                </div>
+                                <h3>${r.Headline || r.headline}</h3>
+                                <p class="report-desc">${r.Description || r.description}</p>
+                                ${userRole === 'admin' ? `
+                                    <div style="margin-top: 1.5rem; border-top: 1px solid var(--border); padding-top: 1rem;">
+                                        <label style="font-weight: 500; font-size: 0.9rem; margin-right: 0.5rem;">${window.i18n.t('dash_admin_action')}</label>
+                                        <select class="form-control" style="width: auto; padding: 0.4rem; display: inline-block; font-size: 0.9rem;" onchange="updateReportStatus(${id}, this.value)">
+                                            <option value="Pending" ${status === 'Pending' ? 'selected' : ''}>${window.i18n.t('status_pending')}</option>
+                                            <option value="Verified Fake" ${status === 'Verified Fake' ? 'selected' : ''}>${window.i18n.t('status_fake')}</option>
+                                            <option value="Verified True" ${status === 'Verified True' ? 'selected' : ''}>${window.i18n.t('status_true')}</option>
+                                        </select>
+                                    </div>
+                                ` : ''}
+                            </div>
+                        `;
+                    }).join('');
+                })
+                .catch(err => {
+                    console.error("Dashboard Fetch Error:", err);
+                    content.innerHTML = `<p style="text-align:center; color:var(--danger)">Error loading reports from server.</p>`;
+                });
+            }
+
+            window.updateReportStatus = function(id, newStatus) {
+                fetch(`/api/reports/${id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ status: newStatus })
+                })
+                .then(async res => {
+                    if (res.status === 409) {
+                        const errorData = await res.json();
+                        throw new Error(errorData.error);
+                    }
+                    if (!res.ok) throw new Error("Failed to update status.");
+                    renderDashboard();
+                })
+                .catch(err => {
+                    console.error("Update Error:", err);
+                    alert(err.message || "Failed to update status.");
+                    renderDashboard();
+                });
+            };
+
+            // Initial render - Wait for i18n to be ready to avoid raw keys showing
+            if (window.i18n && window.i18n.isReady) {
+                switchTab(currentTab);
+            } else {
+                document.addEventListener('languageChanged', () => {
+                    switchTab(currentTab);
+                }, { once: true });
+            }
+        }
+    </script>
+</body></html>

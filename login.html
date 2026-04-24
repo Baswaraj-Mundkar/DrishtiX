@@ -1,0 +1,218 @@
+<!DOCTYPE html><html lang="en"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - DrishtiX</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,100..900;1,100..900&amp;family=Noto+Sans+Bengali:wght@100..900&amp;family=Noto+Sans+Devanagari:wght@100..900&amp;family=Noto+Sans+Gujarati:wght@100..900&amp;family=Noto+Sans+Kannada:wght@100..900&amp;family=Noto+Sans+Tamil:wght@100..900&amp;family=Noto+Sans+Telugu:wght@100..900&amp;display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .auth-container {
+            min-height: calc(100vh - 80px); /* minus navbar */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            margin-top: 40px;
+        }
+        .auth-card {
+            background: var(--surface);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-lg);
+            width: 100%;
+            max-width: 420px;
+            padding: 3rem 2.5rem;
+            border: 1px solid var(--border);
+            position: relative;
+            overflow: hidden;
+        }
+        .auth-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        .auth-header h2 {
+            font-size: 2.2rem;
+            color: var(--text);
+            margin-bottom: 0.5rem;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .auth-header p {
+            color: var(--text-muted);
+            font-size: 1rem;
+        }
+        .auth-tabs {
+            display: flex;
+            background: var(--accent-soft);
+            border-radius: 12px;
+            padding: 0.35rem;
+            margin-bottom: 2rem;
+            border: 1px solid var(--border);
+        }
+        .auth-tab {
+            flex: 1;
+            text-align: center;
+            padding: 0.6rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            color: var(--text-muted);
+            transition: all 0.3s ease;
+            font-size: 0.95rem;
+        }
+        .auth-tab.active {
+            background: var(--surface);
+            color: var(--accent);
+            box-shadow: var(--shadow-sm);
+        }
+        .auth-form .form-group {
+            margin-bottom: 1.5rem;
+            text-align: left;
+        }
+        .auth-footer {
+            margin-top: 2rem;
+            text-align: center;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+        .admin-hint {
+            margin-top: 1rem;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            border: 1px dashed var(--text-muted);
+            padding: 0.75rem;
+            border-radius: 8px;
+            background: var(--accent-soft);
+            line-height: 1.5;
+        }
+    </style>
+    <script src="config.js"></script>
+</head>
+<body>
+
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="logo">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path><circle cx="12" cy="11.5" r="3"></circle><path d="M12 8.5v0"></path></svg>
+                DrishtiX
+            </a>
+            <button class="hamburger">&#9776;</button>
+            <ul class="nav-links">
+                <li><a href="index.html" data-i18n="nav_home">Home</a></li>
+                <li><a href="learn.html" data-i18n="nav_learn">Learn</a></li>
+                <li><a href="checker.html" data-i18n="nav_checker">Fact Check</a></li>
+                <li><a href="examples.html" data-i18n="nav_examples">Examples</a></li>
+                <li><a href="quiz.html" data-i18n="nav_quiz">Quiz</a></li>
+                <li><a href="report.html" data-i18n="nav_report">Report</a></li>
+                <li><a href="dashboard.html" data-i18n="nav_dashboard">Dashboard</a></li>
+                <li><a href="index.html#about" data-i18n="nav_about">About</a></li>
+            </ul>
+        
+            <select id="lang-switcher">
+                <option value="en">English</option>
+                <option value="hi">हिन्दी</option>
+                <option value="mr">मराठी</option>
+                <option value="ta">தமிழ்</option>
+                <option value="te">తెలుగు</option>
+                <option value="kn">ಕನ್ನಡ</option>
+                <option value="gu">ગુજરાતી</option>
+                <option value="bn">বাংলা</option>
+            </select>
+</div>
+    </nav>
+
+    <div class="auth-container fade-in">
+        <div class="auth-card">
+            
+            <div class="auth-header">
+                <h2 data-i18n="login_h2">Welcome Back</h2>
+                <p data-i18n="login_p">Log in to access your dashboard.</p>
+            </div>
+
+            <div class="auth-tabs" id="auth-tabs">
+                <div class="auth-tab active" data-role="user" onclick="switchLoginRole('user')" data-i18n="login_tab_1">User Login</div>
+                <div class="auth-tab" data-role="admin" onclick="switchLoginRole('admin')" data-i18n="login_tab_2">Admin Secure</div>
+            </div>
+
+            <form id="login-form" class="auth-form">
+                <div class="form-group">
+                    <label for="username" data-i18n="login_lbl_1">Username / Full Name</label>
+                    <input type="text" id="username" class="form-control" placeholder="Enter your name..." data-i18n="login_ph_1" required="">
+                </div>
+                
+                <div class="form-group">
+                    <label for="password" data-i18n="login_lbl_2">Password</label>
+                    <input type="password" id="password" class="form-control" placeholder="Enter password (demo: any)" data-i18n="login_ph_2" required="">
+                </div>
+
+                <div id="admin-notice" class="admin-hint" style="display: none;">
+                    <strong data-i18n="login_hint_str">Admin Simulation:</strong> <br><span data-i18n="login_hint_1">Use Username:</span> <code>admin</code> <br><span data-i18n="login_hint_2">Password:</span> <code>1234</code>
+                </div>
+
+                <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem; font-size: 1.1rem; padding: 1rem;" id="login-btn" data-i18n="login_btn">Secure Sign In</button>
+            </form>
+            
+            <div class="auth-footer">
+                <span data-i18n="login_foot_1">Don't have an account?</span> <strong data-i18n="login_foot_2">Simulated Auth allows any string for Users!</strong>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p data-i18n="footer_copyright">© 2026 DrishtiX Project. Social Media and Fake News Awareness.</p>
+    </footer>
+
+    <!-- Ensure script is linked so navbar themes and links run -->
+    <script src="config.js"></script>
+    <script src="i18n.js"></script>
+    <script src="script.js"></script>
+    <script>
+        let selectedRole = 'user';
+
+        function switchLoginRole(role) {
+            selectedRole = role;
+            document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
+            document.querySelector(`.auth-tab[data-role="${role}"]`).classList.add('active');
+            
+            if(role === 'admin') {
+                document.getElementById('admin-notice').style.display = 'block';
+                document.getElementById('username').placeholder = "Enter 'admin'";
+                document.getElementById('password').placeholder = "Enter '1234'";
+            } else {
+                document.getElementById('admin-notice').style.display = 'none';
+                document.getElementById('username').placeholder = "Enter your name...";
+                document.getElementById('password').placeholder = "Enter password (demo: any)";
+            }
+        }
+
+        document.getElementById('login-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value.trim();
+
+            if(!username || !password) return;
+
+            if(selectedRole === 'admin') {
+                if(username.toLowerCase() === 'admin' && password === '1234') {
+                    localStorage.setItem('drishti_user_role', 'admin');
+                    localStorage.setItem('drishti_current_user', 'Administrator');
+                    alert('Log in successful as Administrator!');
+                    window.location.href = 'dashboard.html';
+                } else {
+                    alert('Invalid admin credentials. (Hint: Use admin / 1234)');
+                }
+            } else {
+                // Any name acts as a successfully registered user for demo
+                localStorage.setItem('drishti_user_role', 'user');
+                localStorage.setItem('drishti_current_user', username);
+                alert(`Welcome back, ${username}! Redirecting to Report Center...`);
+                window.location.href = 'report.html';
+            }
+        });
+    </script>
+
+
+</body></html>

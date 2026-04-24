@@ -1,0 +1,48 @@
+flowchart TD
+    %% Define Styles
+    classDef external fill:#f9f9f9,stroke:#333,stroke-width:2px;
+    classDef process fill:#e1f5fe,stroke:#0288d1,stroke-width:2px;
+    classDef datastore fill:#fff9c4,stroke:#fbc02d,stroke-width:2px;
+
+    %% External Entities
+    User[App User]:::external
+    Admin[App Admin]:::external
+    GoogleAPI[Google API]:::external
+
+    %% Processes (Level 1)
+    P1((1.0<br>Session<br>Management)):::process
+    P2((2.0<br>Fact Check<br>Analysis)):::process
+    P3((3.0<br>Fake News<br>Reporting)):::process
+    P4((4.0<br>Quiz & Learning<br>Assessment)):::process
+    P5((5.0<br>Dashboard<br>Moderation)):::process
+
+    %% Data Stores
+    D1[(D1: User DB)]:::datastore
+    D2[(D2: Reports DB)]:::datastore
+    D3[(D3: i18n Locales)]:::datastore
+
+    %% Data Flows: User
+    User -->|Login credentials| P1
+    User -->|Claim Text / Image Descs| P2
+    User -->|Report submission Lat/Lng, details| P3
+    User -->|Selected quiz options| P4
+    User -->|Requests personal reports| P5
+
+    %% Data Flows: Processes to Data Stores
+    P1 -->|Stores current active user & role| D1
+    P3 -->|Saves new Draft & Pending report| D2
+    P4 -.->|Reads dynamic translated Qs| D3
+    
+    %% Data Flows: Data Stores to Processes
+    D2 -->|Fetches report history / status| P5
+    D1 -->|Verifies Admin/User context| P5
+
+    %% Data Flows: Admin
+    P5 -->|Shows all reports grid| Admin
+    Admin -->|Updates report to Verified/Fake| P5
+    P5 -->|Writes status back| D2
+
+    %% Fact Check API Data Flow
+    P2 -->|External GET check| GoogleAPI
+    GoogleAPI -->|API Response| P2
+    P2 -->|AI Heuristics & Confidence Score Result| User

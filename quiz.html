@@ -1,0 +1,239 @@
+<!DOCTYPE html><html lang="en"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz - DrishtiX</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,100..900;1,100..900&amp;family=Noto+Sans+Bengali:wght@100..900&amp;family=Noto+Sans+Devanagari:wght@100..900&amp;family=Noto+Sans+Gujarati:wght@100..900&amp;family=Noto+Sans+Kannada:wght@100..900&amp;family=Noto+Sans+Tamil:wght@100..900&amp;family=Noto+Sans+Telugu:wght@100..900&amp;display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .quiz-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: var(--surface);
+            padding: 3rem;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-lg);
+            border: 1px solid var(--border);
+            min-height: 400px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        .progress-container {
+            width: 100%;
+            height: 6px;
+            background: var(--border);
+            border-radius: 3px;
+            margin-bottom: 2.5rem;
+            overflow: hidden;
+        }
+        .progress-bar {
+            height: 100%;
+            background: var(--accent);
+            width: 0%;
+            transition: width 0.4s ease;
+        }
+        .question-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            color: var(--text-muted);
+            font-weight: 600;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .question-text {
+            font-size: 1.4rem;
+            font-weight: 700;
+            line-height: 1.4;
+            margin-bottom: 2rem;
+            color: var(--text);
+        }
+        .options {
+            display: grid;
+            gap: 1rem;
+        }
+        .option-card {
+            padding: 1.25rem 1.5rem;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            background: var(--surface);
+            font-weight: 500;
+        }
+        .option-card:hover {
+            border-color: var(--accent);
+            background: var(--bg-subtle);
+            transform: translateX(5px);
+        }
+        .option-card.selected {
+            border-color: var(--accent);
+            background: var(--accent);
+            color: white !important;
+        }
+        .option-card.selected * {
+            color: white !important;
+        }
+        .quiz-result {
+            text-align: center;
+            animation: fadeIn 0.5s ease;
+        }
+        .score-circle {
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            border: 5px solid var(--accent);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            margin: 0 auto 2.5rem;
+            position: relative;
+            background: var(--surface);
+            box-shadow: var(--shadow-lg);
+            animation: pulse 2s infinite ease-in-out;
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); box-shadow: var(--shadow-lg); }
+            50% { transform: scale(1.03); box-shadow: 0 12px 48px rgba(0,0,0,0.2); }
+            100% { transform: scale(1); box-shadow: var(--shadow-lg); }
+        }
+        .score-val {
+            font-size: 3.5rem;
+            font-weight: 800;
+            line-height: 1;
+            margin-top: 0.5rem;
+            color: var(--accent);
+        }
+        .score-label-top {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-weight: 700;
+            color: var(--text-muted);
+            margin-top: -0.5rem;
+        }
+        .score-label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-faint);
+            margin-top: 0.25rem;
+        }
+        .quiz-result h2 {
+            font-size: 2.2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        .result-icon {
+            font-size: 3rem;
+            filter: drop-shadow(0 4px 10px rgba(0,0,0,0.2));
+            display: block;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+    <script src="config.js"></script>
+</head>
+<body>
+
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="logo">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path><circle cx="12" cy="11.5" r="3"></circle><path d="M12 8.5v0"></path></svg>
+                DrishtiX
+            </a>
+            <button class="hamburger">&#9776;</button>
+            <ul class="nav-links">
+                <li><a href="index.html" data-i18n="nav_home">Home</a></li>
+                <li><a href="learn.html" data-i18n="nav_learn">Learn</a></li>
+                <li><a href="checker.html" data-i18n="nav_checker">Fact Check</a></li>
+                <li><a href="examples.html" data-i18n="nav_examples">Examples</a></li>
+                <li><a href="quiz.html" class="active" data-i18n="nav_quiz">Quiz</a></li>
+                <li><a href="report.html" data-i18n="nav_report">Report</a></li>
+                <li><a href="dashboard.html" data-i18n="nav_dashboard">Dashboard</a></li>
+                <li><a href="index.html#about" data-i18n="nav_about">About</a></li>
+            </ul>
+        
+            <select id="lang-switcher">
+                <option value="en">English</option>
+                <option value="hi">हिन्दी</option>
+                <option value="mr">मराठी</option>
+                <option value="ta">தமிழ்</option>
+                <option value="te">తెలుగు</option>
+                <option value="kn">ಕನ್ನಡ</option>
+                <option value="gu">ગુજરાતી</option>
+                <option value="bn">বাংলা</option>
+            </select>
+</div>
+    </nav>
+
+    <header class="page-header">
+        <div class="fade-in">
+            <h1 data-i18n="quiz_h1">Test Your Knowledge</h1>
+            <p data-i18n="quiz_p1">Can you identify the strategies used by fake news creators?</p>
+        </div>
+    </header>
+
+    <section class="section">
+        <div class="quiz-container fade-in" id="quiz-app">
+            <!-- Initial State: Loading -->
+            <div id="quiz-loading" style="text-align: center; padding: 2rem;">
+                <p data-i18n="quiz_loading">Preparing your custom challenge...</p>
+            </div>
+
+            <!-- Quiz State: Question active -->
+            <div id="quiz-active" style="display: none;">
+                <div class="progress-container">
+                    <div class="progress-bar" id="quiz-progress"></div>
+                </div>
+                <div class="question-header">
+                    <span id="question-count">Question 1 of 10</span>
+                    <span id="quiz-timer"></span>
+                </div>
+                <div class="question-text" id="question-text">
+                    <!-- Question text injected here -->
+                </div>
+                <div class="options" id="options-container">
+                    <!-- Options injected here -->
+                </div>
+            </div>
+
+            <!-- Final State: Result -->
+            <div id="quiz-result" class="quiz-result" style="display: none;">
+                <div class="score-circle">
+                    <span class="score-label-top" data-i18n="lbl_score">Score</span>
+                    <div class="score-val" id="final-score">0</div>
+                    <div class="score-label" data-i18n="lbl_total">out of 10</div>
+                </div>
+                <div class="result-header">
+                    <span id="result-icon" class="result-icon"></span>
+                    <h2 id="result-title">Review</h2>
+                </div>
+                <p id="result-desc" style="margin: 1.5rem 0; color: var(--text-muted); max-width: 600px; margin-left: auto; margin-right: auto; line-height: 1.6; font-size: 1.1rem;"></p>
+                <button class="btn btn-primary btn-premium" onclick="location.reload()" style="padding: 1rem 3rem; margin-top: 1rem;" data-i18n="quiz_restart">Try a New Set</button>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <p data-i18n="footer_copyright">© 2026 DrishtiX Project. Social Media and Fake News Awareness.</p>
+    </footer>
+
+    <script src="config.js"></script>
+    <script src="i18n.js"></script>
+    <script src="script.js"></script>
+    <script src="quiz_engine.js"></script>
+</body></html>

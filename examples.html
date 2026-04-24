@@ -1,0 +1,538 @@
+<!DOCTYPE html><html lang="en"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Examples - DrishtiX</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,100..900;1,100..900&amp;family=Noto+Sans+Bengali:wght@100..900&amp;family=Noto+Sans+Devanagari:wght@100..900&amp;family=Noto+Sans+Gujarati:wght@100..900&amp;family=Noto+Sans+Kannada:wght@100..900&amp;family=Noto+Sans+Tamil:wght@100..900&amp;family=Noto+Sans+Telugu:wght@100..900&amp;display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .examples-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1.5rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        @media (max-width: 1200px) {
+            .examples-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+        
+        @media (max-width: 900px) {
+            .examples-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
+        @media (max-width: 600px) {
+            .examples-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        /* Pattern recognition responsive design */
+        @media (max-width: 1200px) {
+            .pattern-grid {
+                grid-template-columns: repeat(3, 1fr) !important;
+            }
+        }
+        
+        @media (max-width: 900px) {
+            .pattern-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+            }
+        }
+        
+        @media (max-width: 600px) {
+            .pattern-grid {
+                grid-template-columns: 1fr !important;
+            }
+        }
+        .example-card {
+            background: var(--surface);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-sm);
+            overflow: hidden;
+            border: 1px solid var(--border);
+            transition: var(--transition);
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            min-height: 380px;
+        }
+        .example-card:hover {
+            transform: translateY(-8px);
+            box-shadow: var(--shadow-lg);
+            border-color: var(--accent);
+        }
+        .example-image {
+            width: 100%;
+            height: 140px;
+            object-fit: cover;
+            border-bottom: 1px solid var(--border);
+            background: var(--bg-subtle);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            transition: transform 0.3s ease, filter 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .example-image:hover {
+            transform: scale(1.05);
+            filter: brightness(1.1) contrast(1.05);
+        }
+        
+        .example-card:hover .example-image {
+            transform: scale(1.02);
+        }
+        
+        .example-image::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, transparent 30%, rgba(255,255,255,0.1) 50%, transparent 70%);
+            transform: translateX(-100%);
+            transition: transform 0.6s ease;
+        }
+        
+        .example-card:hover .example-image::after {
+            transform: translateX(100%);
+        }
+        .example-header {
+            padding: 0.5rem;
+            color: white;
+            font-weight: 700;
+            text-align: center;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 1px;
+        }
+        .bg-danger { background-color: var(--accent); }
+        .bg-warning { background-color: #f59e0b; }
+        .bg-info { background-color: #3b82f6; }
+        .bg-purple { background-color: #8b5cf6; }
+        .bg-teal { background-color: #10b981; }
+        
+        .example-body {
+            padding: 1rem;
+            flex-grow: 1;
+            background: var(--surface);
+            display: flex;
+            flex-direction: column;
+        }
+        .example-body h3 {
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+            color: var(--text) !important;
+            line-height: 1.3;
+        }
+        .example-body p {
+            color: var(--text-muted) !important;
+            font-size: 0.85rem;
+            line-height: 1.4;
+            margin-bottom: 0.75rem;
+            flex-grow: 1;
+        }
+        .fact-box {
+            margin-top: auto;
+            background: var(--accent-soft);
+            border-left: 3px solid var(--accent);
+            padding: 0.75rem;
+            border-radius: 6px;
+        }
+        .fact-box strong {
+            color: #9a9a9a !important;
+            font-size: 0.85rem;
+        }
+        .fact-box p {
+            color: #b8b8b8 !important;
+            font-size: 0.8rem;
+            margin-top: 0.25rem;
+            margin-bottom: 0;
+        }
+        
+        /* Dark mode fact-box */
+        [data-theme="dark"] .fact-box strong {
+            color: #a0a0a0 !important;
+        }
+        [data-theme="dark"] .fact-box p {
+            color: #808080 !important;
+        }
+        
+        /* Ensure text visibility in both light and dark themes */
+        .example-card {
+            color: var(--text);
+        }
+        
+        .example-body * {
+            color: inherit;
+        }
+        
+        .example-body h3 {
+            color: var(--text) !important;
+        }
+        
+        .example-body p {
+            color: var(--text-muted) !important;
+        }
+        
+        .fact-box {
+            color: var(--text);
+        }
+        
+        .fact-box strong {
+            color: var(--text) !important;
+        }
+        
+        .fact-box p {
+            color: var(--text-muted) !important;
+        }
+        
+        /* Direct text visibility fix for examples section */
+        .example-card, .example-card * {
+            color: inherit !important;
+        }
+
+        .example-card h1, .example-card h2, .example-card h3, .example-card h4, .example-card h5, .example-card h6 {
+            color: #8a8a8a !important;
+        }
+
+        .example-card p, .example-card span, .example-card div {
+            color: #b8b8b8 !important;
+        }
+
+        .example-card strong, .example-card b {
+            color: #9a9a9a !important;
+        }
+
+        .example-card em, .example-card i {
+            color: #b8b8b8 !important;
+        }
+
+        .example-card a {
+            color: #a5a5a5 !important;
+        }
+
+        /* Dark mode for examples */
+        [data-theme="dark"] .example-card h1, [data-theme="dark"] .example-card h2, [data-theme="dark"] .example-card h3, [data-theme="dark"] .example-card h4, [data-theme="dark"] .example-card h5, [data-theme="dark"] .example-card h6 {
+            color: #b0b0b0 !important;
+        }
+
+        [data-theme="dark"] .example-card p, [data-theme="dark"] .example-card span, [data-theme="dark"] .example-card div {
+            color: #808080 !important;
+        }
+
+        [data-theme="dark"] .example-card strong, [data-theme="dark"] .example-card b {
+            color: #a0a0a0 !important;
+        }
+
+        [data-theme="dark"] .example-card em, [data-theme="dark"] .example-card i {
+            color: #808080 !important;
+        }
+
+        [data-theme="dark"] .example-card a {
+            color: #909090 !important;
+        }
+
+        /* Pattern recognition cards */
+        .card, .card * {
+            color: inherit !important;
+        }
+
+        .card h1, .card h2, .card h3, .card h4, .card h5, .card h6 {
+            color: #8a8a8a !important;
+        }
+
+        .card p, .card span, .card div {
+            color: #b8b8b8 !important;
+        }
+
+        .card strong, .card b {
+            color: #9a9a9a !important;
+        }
+
+        .card em, .card i {
+            color: #b8b8b8 !important;
+        }
+
+        .card a {
+            color: #a5a5a5 !important;
+        }
+
+        /* Dark mode for pattern cards */
+        [data-theme="dark"] .card h1, [data-theme="dark"] .card h2, [data-theme="dark"] .card h3, [data-theme="dark"] .card h4, [data-theme="dark"] .card h5, [data-theme="dark"] .card h6 {
+            color: #b0b0b0 !important;
+        }
+
+        [data-theme="dark"] .card p, [data-theme="dark"] .card span, [data-theme="dark"] .card div {
+            color: #808080 !important;
+        }
+
+        [data-theme="dark"] .card strong, [data-theme="dark"] .card b {
+            color: #a0a0a0 !important;
+        }
+
+        [data-theme="dark"] .card em, [data-theme="dark"] .card i {
+            color: #808080 !important;
+        }
+
+        [data-theme="dark"] .card a {
+            color: #909090 !important;
+        }
+    </style>
+    <script src="config.js"></script>
+</head>
+<body>
+
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="logo">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path><circle cx="12" cy="11.5" r="3"></circle><path d="M12 8.5v0"></path></svg>
+                DrishtiX
+            </a>
+            <button class="hamburger">&#9776;</button>
+            <ul class="nav-links">
+                <li><a href="index.html" data-i18n="nav_home">Home</a></li>
+                <li><a href="learn.html" data-i18n="nav_learn">Learn</a></li>
+                <li><a href="checker.html" data-i18n="nav_checker">Fact Check</a></li>
+                <li><a href="examples.html" class="active" data-i18n="nav_examples">Examples</a></li>
+                <li><a href="quiz.html" data-i18n="nav_quiz">Quiz</a></li>
+                <li><a href="report.html" data-i18n="nav_report">Report</a></li>
+                <li><a href="dashboard.html" data-i18n="nav_dashboard">Dashboard</a></li>
+                <li><a href="index.html#about" data-i18n="nav_about">About</a></li>
+            </ul>
+        
+            <select id="lang-switcher">
+                <option value="en">English</option>
+                <option value="hi">हिन्दी</option>
+                <option value="mr">मराठी</option>
+                <option value="ta">தமிழ்</option>
+                <option value="te">తెలుగు</option>
+                <option value="kn">ಕನ್ನಡ</option>
+                <option value="gu">ગુજરાતી</option>
+                <option value="bn">বাংলা</option>
+            </select>
+</div>
+    </nav>
+
+    <header class="page-header">
+        <div class="fade-in">
+            <h1 data-i18n="ex_h1">Case Studies in Misinformation</h1>
+            <p data-i18n="ex_p1">Review 11 real-world scenarios covering the full spectrum of misinformation techniques, from traditional scams to AI-generated content.</p>
+        </div>
+    </header>
+
+    <section class="section">
+        <div class="examples-grid">
+            
+            <!-- Case Study 1 -->
+            <div class="example-card fade-in">
+                <div class="example-image" style="background: linear-gradient(135deg, #1e3a8a, #1e40af); display: flex; align-items: center; justify-content: center; font-size: 3rem;">🌊</div>
+                <div class="example-header bg-danger" data-i18n="ex1_h">Out of Context Photo</div>
+                <div class="example-body">
+                    <h3 data-i18n="ex1_t">Viral Natural Disaster Image</h3>
+                    <p data-i18n="ex1_p">A photo went viral on Facebook claiming to show severe flooding in a major city during a recent storm, causing widespread panic.</p>
+                    <div class="fact-box">
+                        <strong style="color: #0a0a0a !important;" data-i18n="fact_dec">The Decoding:</strong>
+                        <p style="margin-top: 0.25rem; font-size: 0.8rem; color: #6b6b6b !important;" data-i18n="ex1_f">A reverse-image search proved this was from another continent in 2012. It was intentionally re-used to farm engagement during high-stress hurricane seasons.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Case Study 2 -->
+            <div class="example-card fade-in" style="transition-delay: 100ms;">
+                <div class="example-image" style="background: linear-gradient(135deg, #dc2626, #b91c1c); display: flex; align-items: center; justify-content: center; font-size: 3rem;">📉</div>
+                <div class="example-header bg-warning" data-i18n="ex2_h">Exaggeration</div>
+                <div class="example-body">
+                    <h3 data-i18n="ex2_t">The Overnight Crypto Ban Hack</h3>
+                    <p data-i18n="ex2_p">Sensationalist headlines claimed all digital assets would be frozen by government decree. This triggered massive sell-offs among uninformed investors.</p>
+                    <div class="fact-box">
+                        <strong style="color: #0a0a0a !important;" data-i18n="fact_dec">The Decoding:</strong>
+                        <p style="margin-top: 0.25rem; font-size: 0.8rem; color: #6b6b6b !important;" data-i18n="ex2_f">The reality was a standard regulatory proposal for taxing large miners. The 'Ban' terminology was bait to trick users into clicking high-CPM ads.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Case Study 3 -->
+            <div class="example-card fade-in" style="transition-delay: 200ms;">
+                <div class="example-image" style="background: linear-gradient(135deg, #7c3aed, #6d28d9); display: flex; align-items: center; justify-content: center; font-size: 3rem;">🤖</div>
+                <div class="example-header bg-info" data-i18n="ex3_h">AI Deepfakes</div>
+                <div class="example-body">
+                    <h3 data-i18n="ex3_t">Fabricated Political Scandal</h3>
+                    <p data-i18n="ex3_p">An AI-generated audio clip portrayed a minister 'admitting' to rigging an election. The synth-voice was near-perfect, making it incredibly hard to disprove.</p>
+                    <div class="fact-box">
+                        <strong style="color: #0a0a0a !important;" data-i18n="fact_dec">The Decoding:</strong>
+                        <p style="margin-top: 0.25rem; font-size: 0.8rem; color: #6b6b6b !important;" data-i18n="ex3_f">Forensic experts detected 'phaser artifacts' common in early AI clones. We teaching users to look for unnatural breathing patterns in viral audio.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Case Study 4 -->
+            <div class="example-card fade-in" style="transition-delay: 300ms;">
+                <div class="example-image" style="background: linear-gradient(135deg, #374151, #1f2937); display: flex; align-items: center; justify-content: center; font-size: 3rem;">⚕️</div>
+                <div class="example-header bg-purple" data-i18n="ex4_h">Medical Scams</div>
+                <div class="example-body">
+                    <h3 data-i18n="ex4_t">The 'Secret' Garlic Virus Cure</h3>
+                    <p data-i18n="ex4_p">A WhatsApp chain message told millions that drinking hot garlic water cures respiratory diseases, leading many to avoid actual vaccines.</p>
+                    <div class="fact-box">
+                        <strong style="color: #0a0a0a !important;" data-i18n="fact_dec">The Decoding:</strong>
+                        <p style="margin-top: 0.25rem; font-size: 0.8rem; color: #6b6b6b !important;" data-i18n="ex4_f">WHO and local health authorities clarified that while garlic is healthy, it has zero anti-viral properties. Spreading health rumors puts lives at risk.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Case Study 5 -->
+            <div class="example-card fade-in" style="transition-delay: 400ms;">
+                <div class="example-image" style="background: linear-gradient(135deg, #059669, #047857); display: flex; align-items: center; justify-content: center; font-size: 3rem;">📰</div>
+                <div class="example-header bg-teal" data-i18n="ex5_h">Imposter Content</div>
+                <div class="example-body">
+                    <h3 data-i18n="ex5_t">BBC News Impersonation</h3>
+                    <p data-i18n="ex5_p">Scammers created a pixel-perfect replica of a BBC article claiming a celebrity death, designed to infect users' phones with malware.</p>
+                    <div class="fact-box">
+                        <strong style="color: #0a0a0a !important;" data-i18n="fact_dec">The Decoding:</strong>
+                        <p style="margin-top: 0.25rem; font-size: 0.8rem; color: #6b6b6b !important;" data-i18n="ex5_f">The URL was 'bbc.com-reports.biz' instead of 'bbc.com'. Always verify the source URL before trusting the branding on the page.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Case Study 6 -->
+            <div class="example-card fade-in" style="transition-delay: 500ms;">
+                <div class="example-image" style="background: linear-gradient(135deg, #dc2626, #991b1b); display: flex; align-items: center; justify-content: center; font-size: 3rem;">💸</div>
+                <div class="example-header bg-danger" data-i18n="ex6_h">Phishing Scam</div>
+                <div class="example-body">
+                    <h3 data-i18n="ex6_t">The 'Free Laptop' Scheme</h3>
+                    <p data-i18n="ex6_p">Links shared during college admissions promising free laptops to students who register with their bank details to 'validate enrollment'.</p>
+                    <div class="fact-box">
+                        <strong style="color: #0a0a0a !important;" data-i18n="fact_dec">The Decoding:</strong>
+                        <p style="margin-top: 0.25rem; font-size: 0.8rem; color: #6b6b6b !important;" data-i18n="ex6_f">Colleges never ask for sensitive bank data for free benefit registrations. This was a credential-harvesting scam targeting young students.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Case Study 7 -->
+            <div class="example-card fade-in" style="transition-delay: 600ms;">
+                <div class="example-image" style="background: linear-gradient(135deg, #3b82f6, #2563eb); display: flex; align-items: center; justify-content: center; font-size: 3rem;">📱</div>
+                <div class="example-header bg-warning" data-i18n="ex7_h">Viral Misinformation</div>
+                <div class="example-body">
+                    <h3 data-i18n="ex7_t">The 'Miracle Cure' Viral Post</h3>
+                    <p data-i18n="ex7_p">A social media post claiming a common household ingredient cures a major disease went viral with millions of shares, despite having no scientific basis.</p>
+                    <div class="fact-box">
+                        <strong style="color: #0a0a0a !important;" data-i18n="fact_dec">The Decoding:</strong>
+                        <p style="margin-top: 0.25rem; font-size: 0.8rem; color: #6b6b6b !important;" data-i18n="ex7_f">The post used emotional language and fake testimonials. Health authorities debunked it, but the damage was already done to public trust.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Case Study 8 -->
+            <div class="example-card fade-in" style="transition-delay: 700ms;">
+                <div class="example-image" style="background: linear-gradient(135deg, #6b7280, #4b5563); display: flex; align-items: center; justify-content: center; font-size: 3rem;">🕵️</div>
+                <div class="example-header bg-info" data-i18n="ex8_h">Conspiracy Theory</div>
+                <div class="example-body">
+                    <h3 data-i18n="ex8_t">The 'Secret Society' Connection Map</h3>
+                    <p data-i18n="ex8_p">A complex diagram connecting unrelated events, organizations, and people to 'prove' a massive conspiracy controlling world events.</p>
+                    <div class="fact-box">
+                        <strong style="color: #0a0a0a !important;" data-i18n="fact_dec">The Decoding:</strong>
+                        <p style="margin-top: 0.25rem; font-size: 0.8rem; color: #6b6b6b !important;" data-i18n="ex8_f">The connections were based on coincidences and false correlations. Critical thinking shows the pattern is meaningless and designed to create paranoia.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Case Study 9 -->
+            <div class="example-card fade-in" style="transition-delay: 800ms;">
+                <div class="example-image" style="background: linear-gradient(135deg, #f59e0b, #d97706); display: flex; align-items: center; justify-content: center; font-size: 3rem;">🤪</div>
+                <div class="example-header bg-teal" data-i18n="ex9_h">Satire Misinterpreted</div>
+                <div class="example-body">
+                    <h3 data-i18n="ex9_t">The 'Onion Article' Taken Seriously</h3>
+                    <p data-i18n="ex9_p">A satirical news article about absurd events was shared as real news, causing panic and outrage before people realized it was humor.</p>
+                    <div class="fact-box">
+                        <strong style="color: #0a0a0a !important;" data-i18n="fact_dec">The Decoding:</strong>
+                        <p style="margin-top: 0.25rem; font-size: 0.8rem; color: #6b6b6b !important;" data-i18n="ex9_f">The article was clearly labeled as satire. Many people shared it without reading the source or understanding the context of parody news.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Case Study 10 -->
+            <div class="example-card fade-in" style="transition-delay: 900ms;">
+                <div class="example-image" style="background: linear-gradient(135deg, #dc2626, #991b1b); display: flex; align-items: center; justify-content: center; font-size: 3rem;">🗳️</div>
+                <div class="example-header bg-purple" data-i18n="ex10_h">Political Misinformation</div>
+                <div class="example-body">
+                    <h3 data-i18n="ex10_t">The 'Oversimplified Policy' Meme</h3>
+                    <p data-i18n="ex10_p">A political meme that dangerously oversimplified complex policy issues, encouraging people to support harmful positions without understanding the facts.</p>
+                    <div class="fact-box">
+                        <strong style="color: #0a0a0a !important;" data-i18n="fact_dec">The Decoding:</strong>
+                        <p style="margin-top: 0.25rem; font-size: 0.8rem; color: #6b6b6b !important;" data-i18n="ex10_f">The meme ignored crucial context and used emotional manipulation. Real policy requires nuance that can't be captured in a simple image.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Case Study 11 -->
+            <div class="example-card fade-in" style="transition-delay: 1000ms;">
+                <div class="example-image" style="background: linear-gradient(135deg, #8b5cf6, #7c3aed); display: flex; align-items: center; justify-content: center; font-size: 3rem;">🌟</div>
+                <div class="example-header bg-danger" data-i18n="ex11_h">Celebrity Gossip</div>
+                <div class="example-body">
+                    <h3 data-i18n="ex11_t">The 'Secret Celebrity' Death Hoax</h3>
+                    <p data-i18n="ex11_p">A completely fabricated story about a celebrity's secret death or scandal spread rapidly through gossip sites and social media.</p>
+                    <div class="fact-box">
+                        <strong style="color: #0a0a0a !important;" data-i18n="fact_dec">The Decoding:</strong>
+                        <p style="margin-top: 0.25rem; font-size: 0.8rem; color: #6b6b6b !important;" data-i18n="ex11_f">The celebrity was alive and well. The story was created to generate clicks and ad revenue, preying on people's fascination with celebrities.</p>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- Pattern Recognition Section -->
+    <section class="section">
+        <div class="container">
+            <div class="fade-in">
+                <h2 style="text-align: center; margin-bottom: 3rem; color: var(--text);" data-i18n="pat_main">Common Patterns in Misinformation</h2>
+                <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.5rem;" class="pattern-grid">
+                    <div class="card" style="padding: 1.5rem;">
+                        <h3 style="color: var(--accent); margin-bottom: 0.75rem; font-size: 1.1rem;" data-i18n="pat1_h">🎭 Emotional Manipulation</h3>
+                        <p style="color: var(--text-muted); line-height: 1.4; font-size: 0.9rem;" data-i18n="pat1_p">Most misinformation uses strong emotions like fear, anger, or excitement to bypass critical thinking and encourage sharing.</p>
+                    </div>
+                    <div class="card" style="padding: 1.5rem;">
+                        <h3 style="color: var(--accent); margin-bottom: 0.75rem; font-size: 1.1rem;" data-i18n="pat2_h">⏰ Urgency &amp; Scarcity</h3>
+                        <p style="color: var(--text-muted); line-height: 1.4; font-size: 0.9rem;" data-i18n="pat2_p">Creating false urgency or limited-time offers prevents people from verifying information before acting.</p>
+                    </div>
+                    <div class="card" style="padding: 1.5rem;">
+                        <h3 style="color: var(--accent); margin-bottom: 0.75rem; font-size: 1.1rem;" data-i18n="pat3_h">👥 Fake Authority</h3>
+                        <p style="color: var(--text-muted); line-height: 1.4; font-size: 0.9rem;" data-i18n="pat3_p">Misinformation often uses fake experts, stolen credentials, or impersonates trusted sources to appear legitimate.</p>
+                    </div>
+                    <div class="card" style="padding: 1.5rem;">
+                        <h3 style="color: var(--accent); margin-bottom: 0.75rem; font-size: 1.1rem;" data-i18n="pat4_h">🔗 False Connections</h3>
+                        <p style="color: var(--text-muted); line-height: 1.4; font-size: 0.9rem;" data-i18n="pat4_p">Conspiracy theories connect unrelated events to create patterns that don't exist, making coincidences seem meaningful.</p>
+                    </div>
+                    <div class="card" style="padding: 1.5rem;">
+                        <h3 style="color: var(--accent); margin-bottom: 0.75rem; font-size: 1.1rem;" data-i18n="pat5_h">📱 Social Proof</h3>
+                        <p style="color: var(--text-muted); line-height: 1.4; font-size: 0.9rem;" data-i18n="pat5_p">High share counts, fake testimonials, and bot activity create false popularity to make content seem trustworthy.</p>
+                    </div>
+                    <div class="card" style="padding: 1.5rem;">
+                        <h3 style="color: var(--accent); margin-bottom: 0.75rem; font-size: 1.1rem;" data-i18n="pat6_h">🤖 AI-Generated Content</h3>
+                        <p style="color: var(--text-muted); line-height: 1.4; font-size: 0.9rem;" data-i18n="pat6_p">Modern AI tools can create realistic images, videos, and text that are increasingly difficult to distinguish from real content.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <p data-i18n="footer_copyright">© 2026 DrishtiX Project. Social Media and Fake News Awareness.</p>
+    </footer>
+
+    <script src="config.js"></script>
+    <script src="i18n.js"></script>
+    <script src="script.js"></script>
+
+
+</body></html>

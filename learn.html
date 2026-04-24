@@ -1,0 +1,251 @@
+<!DOCTYPE html><html lang="en"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Learn - DrishtiX</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,100..900;1,100..900&amp;family=Noto+Sans+Bengali:wght@100..900&amp;family=Noto+Sans+Devanagari:wght@100..900&amp;family=Noto+Sans+Gujarati:wght@100..900&amp;family=Noto+Sans+Kannada:wght@100..900&amp;family=Noto+Sans+Tamil:wght@100..900&amp;family=Noto+Sans+Telugu:wght@100..900&amp;display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .learn-content {
+            display: flex;
+            flex-direction: column;
+            gap: 2.5rem;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        
+        .tip-card {
+            background: var(--surface);
+            border-left: 5px solid var(--accent);
+            padding: 2rem;
+            box-shadow: var(--shadow-sm);
+            border-radius: 0 var(--radius) var(--radius) 0;
+            transition: var(--transition);
+        }
+        
+        .tip-card:hover {
+            transform: translateX(10px);
+            box-shadow: var(--shadow);
+        }
+
+        .psychology-section {
+            background: var(--surface);
+            padding: 3rem;
+            border-radius: var(--radius);
+            margin-top: 4rem;
+            border: 1px solid var(--border);
+        }
+
+        .method-section {
+            margin-top: 5rem;
+            padding: 4rem 0;
+            border-top: 1px solid var(--border);
+        }
+
+        .method-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .method-step {
+            text-align: center;
+            padding: 2rem;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            transition: var(--transition);
+        }
+
+        .method-step:hover {
+            border-color: var(--accent);
+            transform: translateY(-5px);
+        }
+
+        .method-step h4 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: var(--accent);
+        }
+
+        .glossary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-top: 3rem;
+        }
+
+        .glossary-item {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .glossary-item h4 {
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+    </style>
+    <script src="config.js"></script>
+</head>
+<body>
+
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="logo">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path><circle cx="12" cy="11.5" r="3"></circle><path d="M12 8.5v0"></path></svg>
+                DrishtiX
+            </a>
+            <button class="hamburger">&#9776;</button>
+            <ul class="nav-links">
+                <li><a href="index.html" data-i18n="nav_home">Home</a></li>
+                <li><a href="learn.html" class="active" data-i18n="nav_learn">Learn</a></li>
+                <li><a href="checker.html" data-i18n="nav_checker">Fact Check</a></li>
+                <li><a href="examples.html" data-i18n="nav_examples">Examples</a></li>
+                <li><a href="quiz.html" data-i18n="nav_quiz">Quiz</a></li>
+                <li><a href="report.html" data-i18n="nav_report">Report</a></li>
+                <li><a href="dashboard.html" data-i18n="nav_dashboard">Dashboard</a></li>
+                <li><a href="index.html#about" data-i18n="nav_about">About</a></li>
+            </ul>
+        
+            <select id="lang-switcher">
+                <option value="en">English</option>
+                <option value="hi">हिन्दी</option>
+                <option value="mr">मराठी</option>
+                <option value="ta">தமிழ்</option>
+                <option value="te">తెలుగు</option>
+                <option value="kn">ಕನ್ನಡ</option>
+                <option value="gu">ગુજરાતી</option>
+                <option value="bn">বাংলা</option>
+            </select>
+</div>
+    </nav>
+
+    <!-- Page Header -->
+    <header class="page-header">
+        <div class="fade-in">
+            <h1 data-i18n="learn_h1">The DrishtiX Guide to Spotting Fake News</h1>
+            <p data-i18n="learn_p1">Master the skills to critically evaluate information and identify sophisticated misinformation campaigns.</p>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <section class="section">
+        <div class="learn-content">
+            
+            <div class="tip-card fade-in">
+                <h3 style="color: var(--accent); display: flex; align-items: center; gap: 0.5rem;">
+                    <span style="font-size: 1.5rem;">1</span> <span data-i18n="tip1_h3">Investigate the Source</span>
+                </h3>
+                <p data-i18n="tip1_p">Ensure the website you are reading is credible. Check the URL for odd domains (e.g., .co instead of .com) and look at their 'About Us' section. Is it a well-known news organization or a site you've never heard of before? Satirical sites like The Onion are clear about being jokes, but fake news sites try to look legitimate.</p>
+            </div>
+
+            <div class="tip-card fade-in" style="border-left-color: var(--text-muted);">
+                <h3 style="color: var(--text-muted); display: flex; align-items: center; gap: 0.5rem;">
+                    <span style="font-size: 1.5rem;">2</span> <span data-i18n="tip2_h3">Read Beyond the Headline</span>
+                </h3>
+                <p data-i18n="tip2_p">Headlines are often designed specifically to trigger strong emotions and get clicks (clickbait). The actual article body might tell a very different story or not support the headline's claim at all. Never share an article based solely on its headline.</p>
+            </div>
+
+            <div class="tip-card fade-in" style="border-left-color: var(--accent);">
+                <h3 style="color: var(--accent); display: flex; align-items: center; gap: 0.5rem;">
+                    <span style="font-size: 1.5rem;">3</span> <span data-i18n="tip3_h3">Check the Author and Date</span>
+                </h3>
+                <p data-i18n="tip3_p">Is there an author listed? Real news is usually appropriately dated. Reposting old, accurate news articles completely out of current context is a very common tactic to stir up outrage about current events without actually "lying". Check when the story was originally published.</p>
+            </div>
+
+            <div class="tip-card fade-in" style="border-left-color: var(--text-muted);">
+                <h3 style="color: var(--text-muted); display: flex; align-items: center; gap: 0.5rem;">
+                    <span style="font-size: 1.5rem;">4</span> <span data-i18n="tip4_h3">Look for Supporting Evidence &amp; Citations</span>
+                </h3>
+                <p data-i18n="tip4_p">Do other reputable news sources carry the same story? If a genuinely massive event happened, multiple verified outlets would be reporting on it. Look for links to official data, scientific papers, or quotes from identifiable, verified experts.</p>
+            </div>
+
+            <div class="tip-card fade-in" style="border-left-color: var(--text);">
+                <h3 style="color: var(--text); display: flex; align-items: center; gap: 0.5rem;">
+                    <span style="font-size: 1.5rem;">5</span> <span data-i18n="tip5_h3">Beware of Manipulated Media</span>
+                </h3>
+                <p data-i18n="tip5_p">Images and videos can be easily altered. Use tools like Google Reverse Image Search to see if an image has been used before in a different context. With the rise of AI-generated images (Deepfakes), look for odd distortions—like warped text, blurry backgrounds, or weirdly shaped hands.</p>
+            </div>
+
+            <div class="tip-card fade-in" style="border-left-color: var(--text-muted);">
+                <h3 style="color: var(--text-muted); display: flex; align-items: center; gap: 0.5rem;">
+                    <span style="font-size: 1.5rem;">6</span> <span data-i18n="tip6_h3">Check Your Own Biases</span>
+                </h3>
+                <p data-i18n="tip6_p">Confirmation bias is our tendency to believe information that confirms what we already think. If a story perfectly validates your anger towards a specific group or person, pause. Fake news creators deliberately target these existing biases to ensure you share the content without double-checking it.</p>
+            </div>
+
+        </div>
+
+        <div class="psychology-section fade-in">
+            <h2 data-i18n="psych_h2">The Psychology Behind Misinformation</h2>
+            <p style="margin-top: 1rem; color: var(--text-muted); font-size: 1.1rem; line-height: 1.8;" data-i18n="psych_p">
+                The human brain uses mental shortcuts (heuristics) to process the overwhelming amount of information on the internet. Misinformation exploits these shortcuts. For instance, the <strong data-i18n="psych_strong">Illusory Truth Effect</strong> states that if we hear a lie often enough, our brain starts to accept it as truth simply because it becomes familiar. Bots weaponize this by blasting the same fake article 10,000 times a minute. Overcoming fake news isn't just about reading better—it's about actively short-circuiting these cognitive biases by pausing and thinking critically.
+            </p>
+        </div>
+
+        <!-- The SIFT Method -->
+        <div class="method-section fade-in">
+            <h2 style="text-align: center;" data-i18n="sift_h2">The SIFT Method: A 4-Step Fact-Checking Process</h2>
+            <p style="text-align: center; color: var(--text-muted); margin-bottom: 3rem;" data-i18n="sift_p">Developed by Mike Caulfield, SIFT is a professional-grade technique used by digital literacy experts.</p>
+            
+            <div class="method-grid">
+                <div class="method-step">
+                    <h4 data-i18n="sift_s_h">S - Stop</h4>
+                    <p data-i18n="sift_s_p">When you feel a strong emotional reaction, pause. Don't share or react yet. Ask yourself if you truly know what you're looking at.</p>
+                </div>
+                <div class="method-step">
+                    <h4 data-i18n="sift_i_h">I - Investigate</h4>
+                    <p data-i18n="sift_i_p">Check the source. Who wrote this? What is their reputation? Are they an expert in this specific field?</p>
+                </div>
+                <div class="method-step">
+                    <h4 data-i18n="sift_f_h">F - Find</h4>
+                    <p data-i18n="sift_f_p">Find better coverage. Scan other news outlets. If a claim is true, multiple reputable sources will confirm it independently.</p>
+                </div>
+                <div class="method-step">
+                    <h4 data-i18n="sift_t_h">T - Trace</h4>
+                    <p data-i18n="sift_t_p">Trace back to the original source. Misinformation often relies on taking quotes or images out of their original context.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Glossary of Terms -->
+        <div class="section fade-in">
+            <h2 data-i18n="gloss_h2">Digital Literacy Glossary</h2>
+            <div class="glossary-grid">
+                <div class="glossary-item">
+                    <h4 data-i18n="gloss1_h">Echo Chambers</h4>
+                    <p data-i18n="gloss1_p">Environments where you only encounter information that confirms your existing beliefs, reinforcing your biases.</p>
+                </div>
+                <div class="glossary-item">
+                    <h4 data-i18n="gloss2_h">Information Bubbles</h4>
+                    <p data-i18n="gloss2_p">Search results tailored to your past behavior, isolating you from diverse perspectives and alternative viewpoints.</p>
+                </div>
+                <div class="glossary-item">
+                    <h4 data-i18n="gloss3_h">Bot Networks</h4>
+                    <p data-i18n="gloss3_p">Automated social media accounts used to artificially inflate the popularity of a specific claim or hashtag.</p>
+                </div>
+                <div class="glossary-item">
+                    <h4 data-i18n="gloss4_h">Deepfakes</h4>
+                    <p data-i18n="gloss4_p">Highly realistic but completely fake images, videos, or audio recordings created using artificial intelligence.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <p data-i18n="footer_copyright">© 2026 DrishtiX Project. Social Media and Fake News Awareness.</p>
+    </footer>
+
+    <script src="config.js"></script>
+    <script src="i18n.js"></script>
+    <script src="script.js"></script>
+
+
+</body></html>

@@ -1,0 +1,29 @@
+{
+  "name": "drishtix",
+  "version": "1.0.0",
+  "description": "Social Media and Fake News Awareness Platform",
+  "main": "index.html",
+  "scripts": {
+    "dev": "node server.js",
+    "start": "node server.js",
+    "build": "echo 'No build process needed for static site'",
+    "serve": "node server.js"
+  },
+  "keywords": [
+    "fake-news",
+    "fact-checking",
+    "social-media",
+    "awareness",
+    "misinformation"
+  ],
+  "author": "DrishtiX Team",
+  "license": "MIT",
+  "dependencies": {
+    "body-parser": "^2.2.2",
+    "cheerio": "^1.2.0",
+    "cors": "^2.8.6",
+    "express": "^5.2.1",
+    "run": "^1.5.0",
+    "xlsx": "^0.18.5"
+  }
+}

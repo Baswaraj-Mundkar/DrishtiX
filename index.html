@@ -1,0 +1,290 @@
+<!DOCTYPE html><html lang="en"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DrishtiX - Fake News Awareness Site</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,100..900;1,100..900&amp;family=Noto+Sans+Bengali:wght@100..900&amp;family=Noto+Sans+Devanagari:wght@100..900&amp;family=Noto+Sans+Gujarati:wght@100..900&amp;family=Noto+Sans+Kannada:wght@100..900&amp;family=Noto+Sans+Tamil:wght@100..900&amp;family=Noto+Sans+Telugu:wght@100..900&amp;display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    
+    <!-- Leaflet CSS for Homepage Map -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <script src="config.js"></script>
+</head>
+<body>
+
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="logo">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path><circle cx="12" cy="11.5" r="3"></circle><path d="M12 8.5v0"></path></svg>
+                DrishtiX
+            </a>
+            <button class="hamburger">&#9776;</button>
+            <ul class="nav-links">
+                <li><a href="index.html" class="active" data-i18n="nav_home">Home</a></li>
+                <li><a href="learn.html" data-i18n="nav_learn">Learn</a></li>
+                <li><a href="checker.html" data-i18n="nav_checker">Fact Check</a></li>
+                <li><a href="examples.html" data-i18n="nav_examples">Examples</a></li>
+                <li><a href="quiz.html" data-i18n="nav_quiz">Quiz</a></li>
+                <li><a href="report.html" data-i18n="nav_report">Report</a></li>
+                <li><a href="dashboard.html" data-i18n="nav_dashboard">Dashboard</a></li>
+                <li><a href="#about" data-i18n="nav_about">About</a></li>
+            </ul>
+            <select id="lang-switcher">
+                <option value="en">English</option>
+                <option value="hi">हिन्दी</option>
+                <option value="mr">मराठी</option>
+                <option value="ta">தமிழ்</option>
+                <option value="te">తెలుగు</option>
+                <option value="kn">ಕನ್ನಡ</option>
+                <option value="gu">ગુજરાતી</option>
+                <option value="bn">বাংলা</option>
+            </select>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-content">
+            <h1 data-i18n="hero_title">DrishtiX: Open Your Eyes to the Truth</h1>
+            <p data-i18n="hero_subtitle">Fake news spreads 6 times faster than the truth. Learn to spot misinformation, protect your community, and report malicious content online.</p>
+            <div class="hero-buttons fade-in">
+                <a href="learn.html" class="btn btn-primary" data-i18n="btn_learn_spot">Learn How to Spot It</a>
+                <a href="report.html" class="btn btn-secondary" data-i18n="btn_report_fake">Report Fake News</a>
+            </div>
+        </div>
+    </section>
+
+    <section class="section">
+        <div class="container">
+            <h2 class="section-title fade-in" data-i18n="map_title">Live Global Reports Map</h2>
+            <p style="text-align: center; color: var(--text-muted); margin-bottom: 2rem;" class="fade-in" data-i18n="map_subtitle">See where fake news and misinformation are breaking out right now based on crowdsourced community reports.</p>
+            <div id="home-map" class="fade-in" style="height: 500px; width: 100%; border-radius: var(--radius); box-shadow: var(--shadow); border: 1px solid var(--border); z-index: 10;"></div>
+            <div class="fade-in" style="text-align: center; margin-top: 1.5rem; color: var(--text); font-size: 1rem; font-weight: 500;">
+                <span style="display:inline-block; width:14px; height:14px; border-radius:50%; background:green; margin-right:5px; vertical-align:middle; border: 2px solid white; box-shadow: 0 0 4px rgba(0,0,0,0.5);"></span> <span data-i18n="map_legend_true">Verified True</span>  &nbsp;&nbsp;&nbsp;&nbsp;
+                <span style="display:inline-block; width:14px; height:14px; border-radius:50%; background:red; margin-right:5px; vertical-align:middle; border: 2px solid white; box-shadow: 0 0 4px rgba(0,0,0,0.5);"></span> <span data-i18n="map_legend_fake">Verified Fake</span>  &nbsp;&nbsp;&nbsp;&nbsp;
+                <span style="display:inline-block; width:14px; height:14px; border-radius:50%; background:orange; margin-right:5px; vertical-align:middle; border: 2px solid white; box-shadow: 0 0 4px rgba(0,0,0,0.5);"></span> <span data-i18n="map_legend_pending">Pending Investigation</span>
+            </div>
+        </div>
+    </section>
+
+    <section class="section" style="background: var(--surface); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);">
+        <div class="container">
+            <h2 class="section-title fade-in" data-i18n="impact_title">The Real Impact of Fake News</h2>
+            <div class="grid" style="text-align: center;">
+                <div class="card fade-in">
+                    <h3 style="font-size: 3rem; color: var(--accent);" data-i18n="index_auto_11">70%</h3>
+                    <p style="font-size: 1.1rem; color: var(--text-muted);" data-i18n="impact_70_desc">More likely to be retweeted than true stories, according to MIT researchers.</p>
+                </div>
+                <div class="card fade-in" style="transition-delay: 100ms;">
+                    <h3 style="font-size: 3rem; color: var(--text-muted);" data-i18n="index_auto_12">$78B</h3>
+                    <p style="font-size: 1.1rem; color: var(--text-muted);" data-i18n="impact_78_desc">The estimated annual economic cost of fake news globally.</p>
+                </div>
+                <div class="card fade-in" style="transition-delay: 200ms;">
+                    <h3 style="font-size: 3rem; color: var(--accent);" data-i18n="index_auto_13">5+</h3>
+                    <p style="font-size: 1.1rem; color: var(--text-muted);" data-i18n="impact_5_desc">Social media manipulation campaigns identified in almost every major democracy.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section">
+        <div class="container">
+            <h2 class="section-title fade-in" data-i18n="thrives_title">How Misinformation Thrives</h2>
+            <div class="grid">
+                
+                <div class="card fade-in">
+                    <div class="card-icon">📢</div>
+                    <h3 data-i18n="thrives_echo">Echo Chambers</h3>
+                    <p data-i18n="thrives_echo_desc">Social media algorithms are designed to show you content that reinforces your existing beliefs, blocking out opposing factual views and insulating fake news.</p>
+                </div>
+
+                <div class="card fade-in" style="transition-delay: 100ms;">
+                    <div class="card-icon">🤖</div>
+                    <h3 data-i18n="thrives_bots">Bot Networks</h3>
+                    <p data-i18n="thrives_bots_desc">Automated accounts (bots) are programmed to simultaneously like, share, and comment on fake news articles to artificially inflate their perceived popularity.</p>
+                </div>
+
+                <div class="card fade-in" style="transition-delay: 200ms;">
+                    <div class="card-icon">🧠</div>
+                    <h3 data-i18n="thrives_emotion">Emotional Exploitation</h3>
+                    <p data-i18n="thrives_emotion_desc">Fake news preys on powerful emotions like fear, anger, and outrage. When we are emotionally triggered, our critical thinking skills are bypassed.</p>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <section class="section">
+        <div class="container" style="background: var(--surface); text-align: center; border-radius: var(--radius); padding: 4rem 2rem; border: 1px solid var(--border); box-shadow: var(--shadow-sm); max-width: 1000px;">
+            <div class="fade-in">
+                <h2 style="font-size: 2.5rem; margin-bottom: 1rem; color: var(--text);" data-i18n="solution_title">Be a Part of Solution</h2>
+                <p style="font-size: 1.2rem; color: var(--text-muted); max-width: 600px; margin: 0 auto 2rem;" data-i18n="solution_desc">Every time you pause before sharing, verify a claim, or report misinformation on DrishtiX, you help create a safer digital environment for everyone.</p>
+                <a href="quiz.html" class="btn btn-primary" data-i18n="btn_take_quiz">Take the Knowledge Quiz</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section Migrated from about.html -->
+    <section id="about" class="section" style="padding-top: 2rem;">
+        <div class="container">
+            <div class="fade-in" style="text-align: center; margin-bottom: 4rem;">
+                <h2 class="section-title" style="margin-bottom: 1rem;" data-i18n="about_title">About DrishtiX</h2>
+                <p style="font-size: 1.2rem; color: var(--text-muted); max-width: 700px; margin: 0 auto;" data-i18n="about_subtitle">Empowering internet users with the knowledge to identify and verify information, built by students to protect digital societies globally.</p>
+            </div>
+
+            <div class="about-grid">
+                <div class="about-text fade-in">
+                    <h2 style="font-size: 2.75rem; margin-bottom: 1rem; background: var(--gradient); -webkit-background-clip: text; background-clip: text; color: transparent;" data-i18n="abt_h2">The DrishtiX Initiative</h2>
+                    <h4 style="color: var(--accent); margin-bottom: 1.5rem; font-size: 1.3rem; font-weight: 600;" data-i18n="abt_h4">
+                        Developed at Pimpri Chinchwad College of Engineering and Research (PCCOER), Pune
+                    </h4>
+                    
+                    <h5 style="color: var(--text); font-size: 1.2rem; margin-bottom: 0.5rem;" data-i18n="abt_h5_1">Our Core Vision</h5>
+                    <p style="font-size: 1.1rem; margin-bottom: 1.5rem; color: var(--text-muted); line-height: 1.8;" data-i18n="abt_p1">
+                        DrishtiX is an advanced "Social Media and Fake News Awareness" platform engineered to combat the rapid proliferation of digital misinformation. In an era where AI-generated deepfakes, clickbait journalism, and viral WhatsApp hoaxes spread faster than the truth, our society faces severe risks ranging from polarized elections to public health crises. We built DrishtiX to arm internet users with the critical thinking frameworks and technical tools required to navigate the modern web safely.
+                    </p>
+
+                    <h5 style="color: var(--text); font-size: 1.2rem; margin-bottom: 0.5rem;" data-i18n="abt_h5_2">Platform Capabilities</h5>
+                    <div style="font-size: 1.1rem; color: var(--text-muted); line-height: 1.8; margin-bottom: 1.5rem;">
+                        <span data-i18n="abt_p2">Our ecosystem features four distinct pillars:</span>
+                        <ul style="margin-top: 0.75rem; padding-left: 1.5rem; list-style-type: disc;">
+                            <li style="margin-bottom: 0.5rem;" data-i18n="index_auto_14"><strong style="color: var(--text-muted);" data-i18n="abt_li1_str">Educational Core:</strong> <span data-i18n="abt_li1_txt">Comprehensive guides on spotting cognitive biases, Illusory Truth Effect, and manipulated media.</span></li>
+                            <li style="margin-bottom: 0.5rem;" data-i18n="index_auto_15"><strong style="color: var(--accent);" data-i18n="abt_li2_str">Fact-Checking Engine:</strong> <span data-i18n="abt_li2_txt">Simulated API-driven claim verifier alongside a curated directory of global, trusted fact-checkers like Snopes and AltNews.</span></li>
+                            <li style="margin-bottom: 0.5rem;" data-i18n="index_auto_16"><strong style="color: var(--accent);" data-i18n="abt_li3_str">Crowdsourced Reporting:</strong> <span data-i18n="abt_li3_txt">A geographical tracker utilizing Leaflet maps to pinpoint exactly where specific rumors are breaking out locally.</span></li>
+                            <li data-i18n="index_auto_17"><strong style="color: var(--text-muted);" data-i18n="abt_li4_str">Interactive Assessment:</strong> <span data-i18n="abt_li4_txt">A comprehensive quiz system to help users test their resilience against modern digital deception tactics.</span></li>
+                        </ul>
+                    </div>
+                    
+                    <h5 style="color: var(--text); font-size: 1.2rem; margin-bottom: 0.5rem;" data-i18n="abt_h5_3">The Academic Mission (PCCOER)</h5>
+                    <p style="font-size: 1.1rem; margin-bottom: 1.5rem; color: var(--text-muted); line-height: 1.8;" data-i18n="abt_p3">
+                        Established in 2014 in Ravet under the visionary Pimpri Chinchwad Education Trust (PCET), PCCOER is an autonomous institute guided by a "Four-Pillar Philosophy": Academic Excellence, Research, Professional Competence, and Social Commitment. Our college holds a World Record for filing the maximum number of copyrights in a single day, driving us to innovate constantly.
+                    </p>
+                    <p style="font-size: 1.1rem; margin-bottom: 0; color: var(--text-muted); line-height: 1.8;" data-i18n="abt_p4">
+                        As proud students of PCCOER, we built DrishtiX to directly address the "Social Commitment" and "Research &amp; Innovation" pillars of our college. This platform proves that proactive awareness and accessible technology can drastically reduce the lifecycle of a fake news outbreak.
+                    </p>
+                </div>
+                
+                <div class="about-image fade-in" style="transition-delay: 200ms; position: sticky; top: 120px; height: calc(100vh - 200px); max-height: 500px;">
+                    <div class="scanner-container">
+                        <svg width="140" height="140" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="pulse-icon">
+                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                            <circle cx="12" cy="12" r="3"></circle>
+                        </svg>
+                        <div class="scan-line"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="divider"></div>
+
+            <div class="fade-in">
+                <h2 style="text-align: center; font-size: 2.5rem; margin-bottom: 1rem;" data-i18n="team_h2">Our Team</h2>
+                <p style="text-align: center; color: var(--text-muted); max-width: 600px; margin: 0 auto; margin-bottom: 2rem;" data-i18n="team_p">Meet the passionate developers and researchers behind the DrishtiX platform.</p>
+                
+
+                <div class="team-grid">
+                    <!-- Member 1 -->
+                    <div class="card team-card">
+                        <div class="member-img" data-edit="img-1">
+                            <img src="baswaraj mundkar (1) (1).jpg" alt="Baswaraj Mundkar">
+                        </div>
+                        <h4 data-edit="name-1" data-i18n="index_auto_18">Baswaraj Mundkar</h4>
+                        <p class="role" style="color: var(--text-muted);" data-edit="role-1" data-i18n="index_auto_19">Team Leader</p>
+                        <p class="details" data-edit="desc-1" data-i18n="index_auto_20">Full Stack Developer. Built and managed core platform</p>
+                    </div>
+                    
+                    <!-- Member 2 -->
+                    <div class="card team-card">
+                        <div class="member-img" data-edit="img-2">
+                            <img src="rambhau jadhav (1).jpg" alt="Rambhau Jadhav">
+                        </div>
+                        <h4 data-edit="name-2" data-i18n="index_auto_21">Rambhau Jadhav</h4>
+                        <p class="role" style="color: var(--text-muted);" data-edit="role-2" data-i18n="index_auto_22">Frontend Developer</p>
+                        <p class="details" data-edit="desc-2" data-i18n="index_auto_23">Focused on UI/UX and responsive modern design.</p>
+                    </div>
+
+                    <!-- Member 3 -->
+                    <div class="card team-card">
+                        <div class="member-img" data-edit="img-3">
+                            <img src="rohit bharti (1).png" alt="Rohit Bharti">
+                        </div>
+                        <h4 data-edit="name-3" data-i18n="index_auto_24">Rohit Bharti</h4>
+                        <p class="role" style="color: var(--text-muted);" data-edit="role-3" data-i18n="index_auto_25">Research Analyst</p>
+                        <p class="details" data-edit="desc-3" data-i18n="index_auto_26">Curated fake news examples and educational resources.</p>
+                    </div>
+
+                    <!-- Member 4 -->
+                    <div class="card team-card">
+                        <div class="member-img" data-edit="img-4">
+                            <img src="satyajeet gajbhar (1).jpg" alt="Satyajeet Gajbhar">
+                        </div>
+                        <h4 data-edit="name-4" data-i18n="index_auto_27">Satyajeet Gajbhar</h4>
+                        <p class="role" style="color: var(--text-muted);" data-edit="role-4" data-i18n="index_auto_28">Data / Testing</p>
+                        <p class="details" data-edit="desc-4" data-i18n="index_auto_29">Managed datasets for the quiz and fact-checking simulator.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="divider"></div>
+
+            <div class="fade-in">
+                <h2 style="text-align: center; font-size: 2.5rem; margin-bottom: 1rem;" data-i18n="mntr_h2">Project Mentors</h2>
+                <p style="text-align: center; color: var(--text-muted); max-width: 600px; margin: 0 auto; margin-bottom: 2rem;" data-i18n="mntr_p">We are grateful for the continuous support and guidance from our faculty at PCCOER.</p>
+                
+                <div class="team-grid" style="grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));">
+                    <!-- Project Teacher -->
+                    <div class="card team-card" style="border: 2px solid var(--accent); padding: 3rem 2rem;">
+                        <div class="member-img" data-edit="img-5" style="border-color: var(--accent); width: 150px; height: 150px;">
+                            <img src="bharti patange (1).png" alt="Ms. Bharati Vasant Patange">
+                        </div>
+                        <h4 style="font-size: 1.5rem; margin-top: 1rem;" data-i18n="index_auto_30">Ms. Bharati Vasant Patange</h4>
+                        <p class="role" style="color: var(--text-muted); font-size: 1.1rem; margin-bottom: 1.5rem;" data-i18n="index_auto_31">Project Teacher</p>
+                        <div style="color: var(--text-muted); font-size: 0.95rem; line-height: 2;">
+                            <p data-i18n="index_auto_32">Qualification: Ph.D(Pursuing), MCA, MBA</p>
+                            <p data-i18n="index_auto_33">Experience: 18 Years</p>
+                            <p data-i18n="index_auto_34">Email-Id: bharati.patange@pccoer.in</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Guide Teacher -->
+                    <div class="card team-card" style="border: 2px solid var(--text-muted); padding: 3rem 2rem;">
+                        <div class="member-img" data-edit="img-6" style="border-color: var(--text-muted); width: 150px; height: 150px;">
+                            <img src="sneha mane (1).png" alt="Miss. Sneha Mane">
+                        </div>
+                        <h4 style="font-size: 1.5rem; margin-top: 1rem;" data-i18n="index_auto_35">Miss. Sneha Mane</h4>
+                        <p class="role" style="color: var(--accent); font-size: 1.1rem; margin-bottom: 1.5rem;" data-i18n="index_auto_36">Project Guide</p>
+                        <div style="color: var(--text-muted); font-size: 0.95rem; line-height: 2;">
+                            <p data-i18n="index_auto_37">Qualification: M.Sc(Mathematics), B.Ed</p>
+                            <p data-i18n="index_auto_38">Experience: 2.5 Years</p>
+                            <p data-i18n="index_auto_39">Email-Id: sneha.mane@pccoer.in</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- User Session Section (Dynamically updated by JS) -->
+    <section id="session-status" class="section" style="background: var(--bg-subtle); border-top: 1px solid var(--border); padding: 3rem 0;">
+        <div class="container" style="text-align: center;">
+            <div id="session-info" class="fade-in">
+                <!-- Data will be injected here by script.js -->
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <p data-i18n="footer_copyright">© 2026 DrishtiX Project. Social Media and Fake News Awareness.</p>
+        </div>
+    </footer>
+
+    <script src="i18n.js"></script>
+    <script src="script.js"></script>
+
+
+</body></html>

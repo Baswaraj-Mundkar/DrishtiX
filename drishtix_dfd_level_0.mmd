@@ -1,0 +1,18 @@
+flowchart LR
+    classDef external fill:#f9f9f9,stroke:#333,stroke-width:2px;
+    classDef process fill:#b2e189,stroke:#333,stroke-width:2px;
+
+    User[User / Reporter]:::external
+    Admin[Administrator]:::external
+    GoogleAPI[Google Fact Check API]:::external
+
+    System((0<br>DrishtiX System)):::process
+
+    User -->|Auth details, News drafts, Claim queries, Quiz inputs| System
+    System -->|Validation results, Quiz scores, Dashboard access| User
+
+    Admin -->|Report moderation updates, Edits| System
+    System -->|All reporting metrics, User histories| Admin
+
+    System -->|Search claim queries| GoogleAPI
+    GoogleAPI -->|Fact-check matches & official ratings| System
