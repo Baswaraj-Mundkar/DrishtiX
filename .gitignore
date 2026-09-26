@@ -27,7 +27,6 @@ venv/
 ENV/
 
 # Temporary, backup & scratch files
-q
 *.tmp
 *.bak
 *.swp
