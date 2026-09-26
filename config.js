@@ -4,8 +4,8 @@
 const CONFIG = {
     // Google Fact Check Tools API Key
     // Get yours here: https://console.cloud.google.com/
-    GOOGLE_API_KEY: "AIzaSyBC065qYawPvUmKvnoV8De1NBWW456h_fQ",
-    
+    GOOGLE_API_KEY: "",
+
     // Site Metadata
     SITE_NAME: "DrishtiX",
     VERSION: "1.2.0",
