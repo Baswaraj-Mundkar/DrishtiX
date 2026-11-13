@@ -1,5 +1,11 @@
 // script.js
 
+function escapeHTML(value) {
+    return String(value ?? '').replace(/[&<>"']/g, character => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+    })[character]);
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     console.log("script.js: Starting initialization...");
     try {
@@ -68,7 +74,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const firstName = currentUser.split(' ')[0];
             authLi.innerHTML = `
                 <div style="display:flex; align-items:center; gap:1rem; margin-left:1rem;">
-                    <span style="font-weight:600; color:var(--text);">${window.i18n.t('nav_hi', {name: firstName})} ${roleBadge}</span>
+                    <span style="font-weight:600; color:var(--text);">${escapeHTML(window.i18n.t('nav_hi', {name: firstName}))} ${roleBadge}</span>
                     <a href="javascript:void(0)" onclick="logoutDrishtiX()" style="color:var(--danger, #ef4444); font-size:0.9rem; font-weight:600; padding:0; border:none; background:none;">${window.i18n.t('logout_btn')}</a>
                 </div>
             `;
@@ -232,7 +238,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 Platform: platform,
                 Description: description,
                 Lat: lat,
-                Lng: lng
+                Lng: lng,
+                URL: document.getElementById('newsLink') ? document.getElementById('newsLink').value.trim() : ''
             };
 
             fetch('/api/reports', {
@@ -342,7 +349,7 @@ function updateSessionSection() {
                     ${currentUser.charAt(0).toUpperCase()}
                 </div>
                 <div>
-                    <h3 style="margin-bottom: 0.25rem;">${window.i18n.t('nav_hi', {name: currentUser})}</h3>
+                    <h3 style="margin-bottom: 0.25rem;">${escapeHTML(window.i18n.t('nav_hi', {name: currentUser}))}</h3>
                     <span class="badge" style="background: var(--accent-soft); color: var(--accent); padding: 0.2rem 0.8rem; border-radius: 5px; font-weight: bold; font-size: 0.85rem;">${window.i18n.t('acc_badge', {role: roleLabel})}</span>
                 </div>
                 <div style="display: flex; flex-direction: column; gap: 0.8rem; width: 100%;">
@@ -526,7 +533,7 @@ function initHomeMap() {
                     });
 
                     L.marker([lat, lng], {icon: circleIcon}).addTo(map)
-                     .bindPopup(`<b>${r.Platform}</b><br>${r.Headline}<br><i>Status: ${r.Status || 'Pending'}</i>`);
+                     .bindPopup(`<b>${escapeHTML(r.Platform)}</b><br>${escapeHTML(r.Headline)}<br><i>Status: ${escapeHTML(r.Status || 'Pending')}</i>`);
                      
                     bounds.push([lat, lng]);
                 }
@@ -551,12 +558,12 @@ function initAboutEditor() {
         
         // Load saved data
         if (localStorage.getItem(key)) {
-            el.innerText = localStorage.getItem(key);
+            el.textContent = localStorage.getItem(key);
         }
         
         // Save on input or blur
         el.addEventListener('input', () => {
-            localStorage.setItem(key, el.innerText);
+            localStorage.setItem(key, el.textContent);
         });
         
         // Prevent Enter key from making new lines, just blur
@@ -584,6 +591,12 @@ function initAboutEditor() {
     fileInput.addEventListener('change', (e) => {
         const file = e.target.files[0];
         if (!file || !currentActiveImageElement || !currentActiveImageKey) return;
+        const allowedImageTypes = new Set(['image/jpeg', 'image/png', 'image/webp', 'image/gif']);
+        if (!allowedImageTypes.has(file.type) || file.size > 2 * 1024 * 1024) {
+            alert('Choose a PNG, JPEG, WebP, or GIF image smaller than 2 MB.');
+            fileInput.value = '';
+            return;
+        }
         
         const reader = new FileReader();
         reader.onload = function(event) {
@@ -606,8 +619,11 @@ function initAboutEditor() {
         const defaultIcon = index >= 4 ? (index === 4 ? "👨‍🏫" : "👩‍🏫") : "👤";
 
         // Load saved image
-        if (localStorage.getItem(imgKey)) {
-            el.innerHTML = `<img src="${localStorage.getItem(imgKey)}" alt="Member Image">`;
+        const storedImage = localStorage.getItem(imgKey);
+        if (storedImage && /^data:image\\/(?:png|jpeg|webp|gif);base64,/i.test(storedImage)) {
+            el.innerHTML = `<img src="${storedImage}" alt="Member Image">`;
+        } else if (storedImage) {
+            localStorage.removeItem(imgKey);
         }
 
         // Click to open file picker OR delete if already exists
@@ -630,7 +646,11 @@ function initAboutEditor() {
 
 function seedDemoReports() {
     const existing = localStorage.getItem('drishti_reports');
-    if (existing && JSON.parse(existing).length > 3) return; 
+    try {
+        if (existing && Array.isArray(JSON.parse(existing)) && JSON.parse(existing).length > 3) return;
+    } catch (error) {
+        localStorage.removeItem('drishti_reports');
+    } 
 
     const demoData = [
         { id: 1, lat: 19.0760, lng: 72.8777, platform: "WhatsApp", headline: "Deepfake video of local politician circulated in Mumbai", status: "Verified Fake", name: "System Admin", date: "2026-03-20" },
