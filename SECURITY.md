@@ -4,7 +4,7 @@ DrishtiX is an academic prototype, not a production service.
 
 ## Current security boundary
 
-- The Express report API is disabled in production mode.
+- The Node.js report API is disabled unless local development mode and the explicit demo flag are both enabled.
 - When enabled for a local demo, the server listens only on `127.0.0.1`.
 - The login page only changes a browser-side demo role. It is not authentication.
 - The local report API has no production-grade identity, authorization, or multi-user privacy model.
