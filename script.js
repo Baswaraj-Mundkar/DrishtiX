@@ -604,7 +604,7 @@ function initAboutEditor() {
 
         // Load saved image
         const storedImage = localStorage.getItem(imgKey);
-        if (storedImage && /^data:image\\/(?:png|jpeg|webp|gif);base64,/i.test(storedImage)) {
+        if (storedImage && /^data:image\/(?:png|jpeg|webp|gif);base64,/i.test(storedImage)) {
             el.innerHTML = `<img src="${storedImage}" alt="Member Image">`;
         } else if (storedImage) {
             localStorage.removeItem(imgKey);
