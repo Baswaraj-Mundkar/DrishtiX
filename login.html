@@ -1,7 +1,7 @@
 <!DOCTYPE html><html lang="en"><head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - DrishtiX</title>
+    <title>Demo Role Selection - DrishtiX</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,100..900;1,100..900&amp;family=Noto+Sans+Bengali:wght@100..900&amp;family=Noto+Sans+Devanagari:wght@100..900&amp;family=Noto+Sans+Gujarati:wght@100..900&amp;family=Noto+Sans+Kannada:wght@100..900&amp;family=Noto+Sans+Tamil:wght@100..900&amp;family=Noto+Sans+Telugu:wght@100..900&amp;display=swap" rel="stylesheet">
@@ -128,13 +128,13 @@
         <div class="auth-card">
             
             <div class="auth-header">
-                <h2 data-i18n="login_h2">Welcome Back</h2>
-                <p data-i18n="login_p">Log in to access your dashboard.</p>
+                <h2>Choose a demo role</h2>
+                <p>This page only selects a local demonstration role. It does not create or authenticate an account.</p>
             </div>
 
             <div class="auth-tabs" id="auth-tabs">
-                <div class="auth-tab active" data-role="user" onclick="switchLoginRole('user')" data-i18n="login_tab_1">User Login</div>
-                <div class="auth-tab" data-role="admin" onclick="switchLoginRole('admin')" data-i18n="login_tab_2">Admin Secure</div>
+                <div class="auth-tab active" data-role="user" onclick="switchLoginRole('user')">User Demo</div>
+                <div class="auth-tab" data-role="admin" onclick="switchLoginRole('admin')">Admin Demo</div>
             </div>
 
             <form id="login-form" class="auth-form">
