@@ -521,7 +521,7 @@ function initHomeMap() {
             const headline = document.createElement('div');
             headline.textContent = String(r.Headline ?? r.headline ?? '');
             const reportStatus = document.createElement('em');
-            reportStatus.textContent = `Status: ${status}`;
+            reportStatus.textContent = r.isDemo ? 'Sample data — illustrative only; not fact-checked' : `Status: ${status}`;
             popup.append(platform, document.createElement('br'), headline, document.createElement('br'), reportStatus);
             marker.bindPopup(popup);
             bounds.push([latValue, lngValue]);
@@ -637,11 +637,11 @@ function seedDemoReports() {
     } 
 
     const demoData = [
-        { id: 1, lat: 19.0760, lng: 72.8777, platform: "WhatsApp", headline: "Deepfake video of local politician circulated in Mumbai", status: "Verified Fake", name: "System Admin", date: "2026-03-20" },
-        { id: 2, lat: 28.7041, lng: 77.1025, platform: "Twitter", headline: "Misleading pollution statistics shared during Delhi peak hours", status: "Pending", name: "Official Source", date: "2026-03-21" },
-        { id: 3, lat: 12.9716, lng: 77.5946, platform: "Facebook", headline: "Scam link promising free water distribution in Bangalore", status: "Verified Fake", name: "System Admin", date: "2026-03-22" },
-        { id: 4, lat: 18.5204, lng: 73.8567, platform: "WhatsApp", headline: "Rumors about PCCOER college closure due to festival", status: "Verified Fake", name: "Collector Office", date: "2026-03-23" },
-        { id: 5, lat: 15.2993, lng: 74.1240, platform: "Instagram", headline: "Old beach cleaning photos shared as current Goa cleanup", status: "Verified True", name: "Govt Portal", date: "2026-03-24" }
+        { id: 1, lat: 19.0760, lng: 72.8777, platform: "WhatsApp", headline: "Deepfake video of local politician circulated in Mumbai", status: "Pending", isDemo: true, name: "Sample Data", date: "2026-03-20" },
+        { id: 2, lat: 28.7041, lng: 77.1025, platform: "Twitter", headline: "Misleading pollution statistics shared during Delhi peak hours", status: "Pending", isDemo: true, name: "Sample Data", date: "2026-03-21" },
+        { id: 3, lat: 12.9716, lng: 77.5946, platform: "Facebook", headline: "Scam link promising free water distribution in Bangalore", status: "Pending", isDemo: true, name: "Sample Data", date: "2026-03-22" },
+        { id: 4, lat: 18.5204, lng: 73.8567, platform: "WhatsApp", headline: "Rumors about PCCOER college closure due to festival", status: "Pending", isDemo: true, name: "Sample Data", date: "2026-03-23" },
+        { id: 5, lat: 15.2993, lng: 74.1240, platform: "Instagram", headline: "Old beach cleaning photos shared as current Goa cleanup", status: "Pending", isDemo: true, name: "Sample Data", date: "2026-03-24" }
     ];
 
     localStorage.setItem('drishti_reports', JSON.stringify(demoData));
