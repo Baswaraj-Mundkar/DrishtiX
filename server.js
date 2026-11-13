@@ -29,7 +29,7 @@ const app = express();
 const PORT = Number(process.env.PORT || 8000);
 const HOST = '127.0.0.1';
 const DEMO_API_ENABLED =
-  process.env.NODE_ENV !== 'production' && process.env.ENABLE_DEMO_API === 'true';
+  process.env.NODE_ENV === 'development' && process.env.ENABLE_DEMO_API === 'true';
 const REPORTS_FILE = path.join(os.homedir(), '.drishtix', 'reports.json');
 const ALLOWED_PLATFORMS = new Set(['WhatsApp', 'Instagram', 'Facebook', 'Twitter', 'Other']);
 const ALLOWED_STATUSES = new Set(['Pending', 'Verified Fake', 'Verified True']);
@@ -144,6 +144,10 @@ app.use('/api', (req, res, next) => {
     });
   }
 
+  const hostname = req.hostname;
+  if (!['127.0.0.1', 'localhost'].includes(hostname)) {
+    return res.status(403).json({ error: 'Only localhost API access is allowed.' });
+  }
   const origin = req.get('origin');
   const expectedOrigin = `http://${req.get('host')}`;
   if (origin && origin !== expectedOrigin) {
