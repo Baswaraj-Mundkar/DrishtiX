@@ -18,7 +18,7 @@ DrishtiX provides educational resources, rule-based text screening, a report-sub
 ## Technology
 
 - **Frontend:** HTML5, CSS3, vanilla JavaScript
-- **Local demo backend:** Node.js and Express 5
+- **Local demo backend:** Node.js built-in HTTP server (no third-party runtime dependencies)
 - **Local report storage:** JSON file stored outside the repository in the current user's home directory
 - **Maps:** Leaflet and OpenStreetMap
 - **Internationalization:** custom client-side translation files
