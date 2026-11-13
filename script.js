@@ -630,8 +630,22 @@ function initAboutEditor() {
 
 function seedDemoReports() {
     const existing = localStorage.getItem('drishti_reports');
+    const sampleNames = new Set(['System Admin', 'Official Source', 'Collector Office', 'Govt Portal', 'Sample Data']);
     try {
-        if (existing && Array.isArray(JSON.parse(existing)) && JSON.parse(existing).length > 3) return;
+        const existingReports = JSON.parse(existing || '[]');
+        if (Array.isArray(existingReports) && existingReports.length > 3) {
+            const hasOldSample = existingReports.some(report => sampleNames.has(report.name));
+            if (!hasOldSample) return;
+            existingReports.forEach(report => {
+                if (sampleNames.has(report.name)) {
+                    report.status = 'Pending';
+                    report.isDemo = true;
+                    report.name = 'Sample Data';
+                }
+            });
+            localStorage.setItem('drishti_reports', JSON.stringify(existingReports));
+            return;
+        }
     } catch (error) {
         localStorage.removeItem('drishti_reports');
     } 
