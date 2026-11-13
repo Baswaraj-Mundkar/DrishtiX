@@ -173,7 +173,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const currentUser = localStorage.getItem('drishti_current_user');
         
         // UX Enhancement: Restore Draft if exists
-        const draft = JSON.parse(localStorage.getItem('drishti_draft_report'));
+        let draft = null;
+        try { draft = JSON.parse(localStorage.getItem('drishti_draft_report') || 'null'); }
+        catch (error) { localStorage.removeItem('drishti_draft_report'); }
         if(draft) {
             const h = document.getElementById('headline');
             const p = document.getElementById('platform');
@@ -205,8 +207,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 reportForm.innerHTML = `
                     <div class="fade-in appear" style="text-align:center; padding: 4rem 1rem; border: 2px dashed var(--border); border-radius: 12px; background: var(--accent-soft); margin-top: 1rem;">
                         <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" style="margin-bottom: 1.5rem;"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
-                        <h3 style="color: var(--text); margin-bottom: 0.5rem; font-size: 1.8rem;">Secure Authentication Required</h3>
-                        <p style="color: var(--text-muted); margin-bottom: 2rem; font-size: 1.1rem; max-width: 500px; margin-left: auto; margin-right: auto;">To maintain the integrity of our database, you must sign in to submit this incident. We have securely saved your draft.</p>
+                        <h3 style="color: var(--text); margin-bottom: 0.5rem; font-size: 1.8rem;">Demo role selection required</h3>
+                        <p style="color: var(--text-muted); margin-bottom: 2rem; font-size: 1.1rem; max-width: 500px; margin-left: auto; margin-right: auto;">Choose a display role to continue with this local academic demonstration. This is not real authentication.</p>
                         <a href="login.html" class="btn btn-primary" style="padding: 1rem 2.5rem; font-size: 1.1rem;">Go to Login Portal</a>
                     </div>
                 `;
@@ -277,50 +279,6 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         });
     }
-
-    // --- 6. Migration Helper: LocalStorage to Excel ---
-    function migrateLocalStorageToExcel() {
-        const localRS = localStorage.getItem('drishti_reports');
-        if (!localRS) return;
-
-        try {
-            const reports = JSON.parse(localRS);
-            if (!Array.isArray(reports) || reports.length === 0) return;
-
-            console.log(`DrishtiX: Migrating ${reports.length} reports to Excel...`);
-            
-            // Map keys and preserve data
-            const migrationQueue = reports.map(r => ({
-                Headline: r.headline,
-                Platform: r.platform,
-                Description: r.description,
-                Name: r.name,
-                Lat: r.lat,
-                Lng: r.lng,
-                Status: r.status || 'Pending',
-                Date: r.date || new Date().toLocaleDateString()
-            }));
-
-            // Sequentially post to avoid potential write locks (though Excel lib handles it)
-            Promise.all(migrationQueue.map(item => 
-                fetch('/api/reports', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(item)
-                })
-            ))
-            .then(() => {
-                console.log("DrishtiX: Migration successful. Clearing localStorage.");
-                localStorage.removeItem('drishti_reports');
-            })
-            .catch(err => console.error("Migration Error:", err));
-
-        } catch (e) {
-            console.error("Migration failed:", e);
-        }
-    }
-
-    migrateLocalStorageToExcel();
 
     // --- 7. About Section Editor Logic ---
     initAboutEditor();
@@ -513,38 +471,64 @@ function initHomeMap() {
     }).addTo(map);
 
     fetch('/api/reports')
-    .then(res => res.json())
+    .then(res => {
+        if (!res.ok) throw new Error('Local report API unavailable');
+        return res.json();
+    })
     .then(allReports => {
-        let bounds = [];
-        allReports.forEach(r => {
-            if(r.Lat && r.Lng) {
-                const lat = parseFloat(r.Lat);
-                const lng = parseFloat(r.Lng);
-                if(!isNaN(lat) && !isNaN(lng)) {
-                    let color = "red";
-                    if(r.Status === "Verified True") color = "green";
-                    if(r.Status === "Pending") color = "orange";
-                    
-                    const circleIcon = L.divIcon({
-                        className: 'custom-div-icon',
-                        html: `<div class="hotspot-pulse" style="background-color:${color}; --pulse-color:${color};"></div>`,
-                        iconSize: [20, 20],
-                        iconAnchor: [10, 10]
-                    });
-
-                    L.marker([lat, lng], {icon: circleIcon}).addTo(map)
-                     .bindPopup(`<b>${escapeHTML(r.Platform)}</b><br>${escapeHTML(r.Headline)}<br><i>Status: ${escapeHTML(r.Status || 'Pending')}</i>`);
-                     
-                    bounds.push([lat, lng]);
-                }
+        if (!Array.isArray(allReports)) throw new Error('Unexpected report response');
+        if (allReports.length === 0) {
+            try {
+                const samples = JSON.parse(localStorage.getItem('drishti_reports') || '[]');
+                if (Array.isArray(samples)) allReports = samples;
+            } catch (error) {
+                localStorage.removeItem('drishti_reports');
             }
+        }
+        renderReportMarkers(allReports);
+    })
+    .catch(() => {
+        try {
+            const samples = JSON.parse(localStorage.getItem('drishti_reports') || '[]');
+            renderReportMarkers(Array.isArray(samples) ? samples : []);
+        } catch (error) {
+            localStorage.removeItem('drishti_reports');
+            renderReportMarkers([]);
+        }
+    });
+
+    function renderReportMarkers(allReports) {
+        const bounds = [];
+        allReports.forEach(r => {
+            const latValue = Number(r.Lat ?? r.lat);
+            const lngValue = Number(r.Lng ?? r.lng);
+            if (!Number.isFinite(latValue) || latValue < -90 || latValue > 90 ||
+                !Number.isFinite(lngValue) || lngValue < -180 || lngValue > 180) return;
+
+            const status = String(r.Status ?? r.status ?? 'Pending');
+            const color = status === 'Verified True' ? 'green' : status === 'Verified Fake' ? 'red' : 'orange';
+            const circleIcon = L.divIcon({
+                className: 'custom-div-icon',
+                html: `<div class="hotspot-pulse" style="background-color:${color}; --pulse-color:${color};"></div>`,
+                iconSize: [20, 20],
+                iconAnchor: [10, 10]
+            });
+
+            const marker = L.marker([latValue, lngValue], { icon: circleIcon }).addTo(map);
+            const popup = document.createElement('div');
+            const platform = document.createElement('strong');
+            platform.textContent = String(r.Platform ?? r.platform ?? 'Unknown');
+            const headline = document.createElement('div');
+            headline.textContent = String(r.Headline ?? r.headline ?? '');
+            const reportStatus = document.createElement('em');
+            reportStatus.textContent = `Status: ${status}`;
+            popup.append(platform, document.createElement('br'), headline, document.createElement('br'), reportStatus);
+            marker.bindPopup(popup);
+            bounds.push([latValue, lngValue]);
         });
 
-        if(bounds.length > 0) {
-            map.fitBounds(bounds, {padding: [50, 50], maxZoom: 12});
-        }
-    })
-    .catch(err => console.error("Home Map Fetch Error:", err));
+        if (bounds.length > 0) map.fitBounds(bounds, { padding: [50, 50], maxZoom: 12 });
+    }
 }
 
 function initAboutEditor() {
