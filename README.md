@@ -120,7 +120,7 @@ DrishtiX/
 ├── index.html               # Homepage and demonstration map
 ├── login.html               # Local demo role selector (not authentication)
 ├── report.html              # Report submission form
-├── server.js                # Local-only Express API
+├── server.js                # Local-only Node.js HTTP API
 ├── config.js                # Public, non-secret site configuration
 ├── script.js                # Frontend interactions
 └── package.json             # Project scripts and dependencies
