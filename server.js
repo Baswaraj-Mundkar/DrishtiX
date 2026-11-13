@@ -35,6 +35,12 @@ const REPORTS_FILE = path.join(os.homedir(), '.drishtix', 'reports.json');
 const ALLOWED_PLATFORMS = new Set(['WhatsApp', 'Instagram', 'Facebook', 'Twitter', 'Other']);
 const ALLOWED_STATUSES = new Set(['Pending', 'Verified Fake', 'Verified True']);
 const rateBuckets = new Map();
+const PUBLIC_ROOT_FILES = new Set([
+  'index.html', 'checker.html', 'dashboard.html', 'login.html',
+  'report.html', 'examples.html', 'learn.html', 'quiz.html',
+  'style.css', 'script.js', 'i18n.js', 'config.js', 'quiz_engine.js'
+]);
+const PUBLIC_DIRECTORIES = new Set(['assets', 'locales']);
 
 function readReports() {
   if (!fs.existsSync(REPORTS_FILE)) return [];
@@ -299,8 +305,13 @@ function serveStatic(req, res, pathname) {
   if (decodedPath === '/') decodedPath = '/index.html';
   const filePath = path.resolve(ROOT, `.${decodedPath}`);
   const relativePath = path.relative(ROOT, filePath);
+  const normalizedRelativePath = relativePath.split(path.sep).join('/');
+  const pathParts = relativePath.split(path.sep);
+  const isPublicFile = PUBLIC_ROOT_FILES.has(normalizedRelativePath);
+  const isPublicAsset = pathParts.length > 1 && PUBLIC_DIRECTORIES.has(pathParts[0]);
   if (relativePath.startsWith('..') || path.isAbsolute(relativePath) ||
-      relativePath.split(path.sep).some(segment => segment.startsWith('.'))) {
+      pathParts.some(segment => segment.startsWith('.')) ||
+      (!isPublicFile && !isPublicAsset)) {
     res.writeHead(404);
     return res.end('Not Found');
   }
