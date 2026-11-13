@@ -1,20 +1,22 @@
 // DrishtiX local demo server.
-// The report API is intentionally disabled for production deployments.
-// This project does not implement real user authentication.
+// Uses Node.js built-ins only. The report API is local-development-only.
+// The browser role selector is not authentication.
 
-const express = require('express');
-const fs = require('fs');
-const os = require('os');
-const path = require('path');
-const crypto = require('crypto');
+const http = require('node:http');
+const fs = require('node:fs');
+const os = require('node:os');
+const path = require('node:path');
+const crypto = require('node:crypto');
+
+const ROOT = __dirname;
 
 function loadLocalEnv() {
-  const envPath = path.join(__dirname, '.env');
+  const envPath = path.join(ROOT, '.env');
   if (!fs.existsSync(envPath)) return;
 
   for (const line of fs.readFileSync(envPath, 'utf8').split(/\r?\n/)) {
     const match = line.match(/^\s*([A-Za-z_][A-Za-z0-9_]*)\s*=\s*(.*?)\s*$/);
-    if (!match || match[1].startsWith('#') || process.env[match[1]] !== undefined) continue;
+    if (!match || process.env[match[1]] !== undefined) continue;
     let value = match[2];
     if ((value.startsWith('"') && value.endsWith('"')) || (value.startsWith("'") && value.endsWith("'"))) {
       value = value.slice(1, -1);
@@ -25,7 +27,6 @@ function loadLocalEnv() {
 
 loadLocalEnv();
 
-const app = express();
 const PORT = Number(process.env.PORT || 8000);
 const HOST = '127.0.0.1';
 const DEMO_API_ENABLED =
@@ -33,19 +34,7 @@ const DEMO_API_ENABLED =
 const REPORTS_FILE = path.join(os.homedir(), '.drishtix', 'reports.json');
 const ALLOWED_PLATFORMS = new Set(['WhatsApp', 'Instagram', 'Facebook', 'Twitter', 'Other']);
 const ALLOWED_STATUSES = new Set(['Pending', 'Verified Fake', 'Verified True']);
-
-app.disable('x-powered-by');
-
-app.use((req, res, next) => {
-  res.setHeader('X-Content-Type-Options', 'nosniff');
-  res.setHeader('X-Frame-Options', 'DENY');
-  res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
-  res.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=(self)');
-  res.setHeader('Cross-Origin-Resource-Policy', 'same-origin');
-  next();
-});
-
-app.use(express.json({ limit: '16kb', strict: true }));
+const rateBuckets = new Map();
 
 function readReports() {
   if (!fs.existsSync(REPORTS_FILE)) return [];
@@ -119,107 +108,257 @@ function validateReport(body) {
   };
 }
 
-function createRateLimiter({ limit, windowMs }) {
-  const buckets = new Map();
-  return (req, res, next) => {
-    const now = Date.now();
-    const key = req.socket.remoteAddress || 'local';
-    const current = buckets.get(key);
-    if (!current || now - current.startedAt >= windowMs) {
-      buckets.set(key, { startedAt: now, count: 1 });
-      return next();
-    }
-    if (current.count >= limit) {
-      return res.status(429).json({ error: 'Too many requests. Please try again later.' });
-    }
-    current.count += 1;
-    return next();
-  };
+function sendJson(res, statusCode, payload) {
+  const body = Buffer.from(JSON.stringify(payload));
+  res.writeHead(statusCode, {
+    'Content-Type': 'application/json; charset=utf-8',
+    'Content-Length': body.length,
+    'Cache-Control': 'no-store',
+    'X-Content-Type-Options': 'nosniff'
+  });
+  res.end(body);
 }
 
-app.use('/api', (req, res, next) => {
-  if (!DEMO_API_ENABLED) {
-    return res.status(503).json({
-      error: 'The report API is disabled. Enable it only for local demonstrations.'
-    });
-  }
+function applySecurityHeaders(res) {
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('X-Frame-Options', 'DENY');
+  res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+  res.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=(self)');
+  res.setHeader('Cross-Origin-Resource-Policy', 'same-origin');
+}
 
-  const hostname = req.hostname;
+function checkRateLimit(req, key, limit, windowMs) {
+  const now = Date.now();
+  const bucketKey = `${key}:${req.socket.remoteAddress || 'local'}`;
+  const current = rateBuckets.get(bucketKey);
+  if (!current || now - current.startedAt >= windowMs) {
+    rateBuckets.set(bucketKey, { startedAt: now, count: 1 });
+    return true;
+  }
+  if (current.count >= limit) return false;
+  current.count += 1;
+  return true;
+}
+
+function checkLocalRequest(req) {
+  if (!DEMO_API_ENABLED) return { status: 503, error: 'The report API is disabled. Enable it only for local demonstrations.' };
+
+  const hostHeader = String(req.headers.host || '');
+  const hostname = hostHeader.split(':')[0].toLowerCase();
   if (!['127.0.0.1', 'localhost'].includes(hostname)) {
-    return res.status(403).json({ error: 'Only localhost API access is allowed.' });
+    return { status: 403, error: 'Only localhost API access is allowed.' };
   }
-  const origin = req.get('origin');
-  const expectedOrigin = `http://${req.get('host')}`;
-  if (origin && origin !== expectedOrigin) {
-    return res.status(403).json({ error: 'Cross-origin API requests are not allowed.' });
+
+  const origin = req.headers.origin;
+  if (origin) {
+    try {
+      if (new URL(origin).origin !== `http://${hostHeader}`) {
+        return { status: 403, error: 'Cross-origin API requests are not allowed.' };
+      }
+    } catch {
+      return { status: 403, error: 'Invalid request origin.' };
+    }
   }
-  next();
-});
+  return null;
+}
 
-app.get('/api/reports', createRateLimiter({ limit: 60, windowMs: 60_000 }), (req, res) => {
-  try {
-    res.setHeader('Cache-Control', 'no-store');
-    res.json(readReports());
-  } catch (error) {
-    console.error('Report read failed:', error.message);
-    res.status(500).json({ error: 'Unable to load local demo reports.' });
+async function readJsonBody(req) {
+  const contentType = String(req.headers['content-type'] || '').split(';')[0].trim().toLowerCase();
+  if (contentType !== 'application/json') {
+    const error = new Error('Content-Type must be application/json.');
+    error.statusCode = 415;
+    throw error;
   }
-});
 
-app.post('/api/reports', createRateLimiter({ limit: 10, windowMs: 15 * 60_000 }), (req, res) => {
-  const validation = validateReport(req.body);
-  if (validation.error) return res.status(400).json({ error: validation.error });
-
-  try {
-    const reports = readReports();
-    reports.push(validation.value);
-    writeReports(reports);
-    res.status(201).json(validation.value);
-  } catch (error) {
-    console.error('Report save failed:', error.message);
-    res.status(500).json({ error: 'Unable to save the local demo report.' });
-  }
-});
-
-app.put('/api/reports/:id', createRateLimiter({ limit: 30, windowMs: 60_000 }), (req, res) => {
-  const id = String(req.params.id || '');
-  const status = req.body && req.body.status;
-  if (!id || id.length > 64 || !ALLOWED_STATUSES.has(status)) {
-    return res.status(400).json({ error: 'A valid report ID and status are required.' });
+  const chunks = [];
+  let size = 0;
+  for await (const chunk of req) {
+    size += chunk.length;
+    if (size > 16 * 1024) {
+      const error = new Error('Request body is too large.');
+      error.statusCode = 413;
+      throw error;
+    }
+    chunks.push(chunk);
   }
 
   try {
-    const reports = readReports();
-    const report = reports.find(item => String(item.ID) === id);
-    if (!report) return res.status(404).json({ error: 'Report not found.' });
-
-    report.Status = status;
-    writeReports(reports);
-    res.json({ message: 'Report status updated.' });
-  } catch (error) {
-    console.error('Report update failed:', error.message);
-    res.status(500).json({ error: 'Unable to update the local demo report.' });
+    const text = Buffer.concat(chunks).toString('utf8');
+    return text ? JSON.parse(text) : {};
+  } catch {
+    const error = new Error('Invalid JSON request body.');
+    error.statusCode = 400;
+    throw error;
   }
-});
+}
 
-app.use((error, req, res, next) => {
-  if (error instanceof SyntaxError && error.status === 400 && 'body' in error) {
-    return res.status(400).json({ error: 'Invalid JSON request body.' });
+async function handleApi(req, res, pathname) {
+  const localError = checkLocalRequest(req);
+  if (localError) return sendJson(res, localError.status, { error: localError.error });
+
+  if (req.method === 'GET' && pathname === '/api/reports') {
+    if (!checkRateLimit(req, 'read', 60, 60_000)) {
+      return sendJson(res, 429, { error: 'Too many requests. Please try again later.' });
+    }
+    try {
+      return sendJson(res, 200, readReports());
+    } catch (error) {
+      console.error('Report read failed:', error.message);
+      return sendJson(res, 500, { error: 'Unable to load local demo reports.' });
+    }
   }
-  console.error('Request failed:', error.message);
-  res.status(500).json({ error: 'Internal server error.' });
-});
 
-app.use(express.static(__dirname, { dotfiles: 'deny', index: 'index.html' }));
+  if (req.method === 'POST' && pathname === '/api/reports') {
+    if (!checkRateLimit(req, 'write', 10, 15 * 60_000)) {
+      return sendJson(res, 429, { error: 'Too many requests. Please try again later.' });
+    }
+    let body;
+    try {
+      body = await readJsonBody(req);
+    } catch (error) {
+      return sendJson(res, error.statusCode || 400, { error: error.message });
+    }
+    const validation = validateReport(body);
+    if (validation.error) return sendJson(res, 400, { error: validation.error });
+
+    try {
+      const reports = readReports();
+      reports.push(validation.value);
+      writeReports(reports);
+      return sendJson(res, 201, validation.value);
+    } catch (error) {
+      console.error('Report save failed:', error.message);
+      return sendJson(res, 500, { error: 'Unable to save the local demo report.' });
+    }
+  }
+
+  const updateMatch = pathname.match(/^\/api\/reports\/([A-Za-z0-9_-]{1,64})$/);
+  if (req.method === 'PUT' && updateMatch) {
+    if (!checkRateLimit(req, 'update', 30, 60_000)) {
+      return sendJson(res, 429, { error: 'Too many requests. Please try again later.' });
+    }
+    let body;
+    try {
+      body = await readJsonBody(req);
+    } catch (error) {
+      return sendJson(res, error.statusCode || 400, { error: error.message });
+    }
+    const status = body && body.status;
+    if (!ALLOWED_STATUSES.has(status)) {
+      return sendJson(res, 400, { error: 'A valid report status is required.' });
+    }
+
+    try {
+      const reports = readReports();
+      const report = reports.find(item => String(item.ID) === updateMatch[1]);
+      if (!report) return sendJson(res, 404, { error: 'Report not found.' });
+      report.Status = status;
+      writeReports(reports);
+      return sendJson(res, 200, { message: 'Report status updated.' });
+    } catch (error) {
+      console.error('Report update failed:', error.message);
+      return sendJson(res, 500, { error: 'Unable to update the local demo report.' });
+    }
+  }
+
+  return sendJson(res, 404, { error: 'API route not found.' });
+}
+
+const MIME_TYPES = {
+  '.html': 'text/html; charset=utf-8',
+  '.css': 'text/css; charset=utf-8',
+  '.js': 'text/javascript; charset=utf-8',
+  '.json': 'application/json; charset=utf-8',
+  '.svg': 'image/svg+xml',
+  '.png': 'image/png',
+  '.jpg': 'image/jpeg',
+  '.jpeg': 'image/jpeg',
+  '.webp': 'image/webp',
+  '.gif': 'image/gif',
+  '.ico': 'image/x-icon',
+  '.woff': 'font/woff',
+  '.woff2': 'font/woff2',
+  '.mmd': 'text/plain; charset=utf-8',
+  '.py': 'text/plain; charset=utf-8'
+};
+
+function serveStatic(req, res, pathname) {
+  if (!['GET', 'HEAD'].includes(req.method)) {
+    res.writeHead(405, { Allow: 'GET, HEAD' });
+    return res.end('Method Not Allowed');
+  }
+
+  let decodedPath;
+  try {
+    decodedPath = decodeURIComponent(pathname);
+  } catch {
+    res.writeHead(400);
+    return res.end('Bad Request');
+  }
+
+  if (decodedPath === '/') decodedPath = '/index.html';
+  const filePath = path.resolve(ROOT, `.${decodedPath}`);
+  const relativePath = path.relative(ROOT, filePath);
+  if (relativePath.startsWith('..') || path.isAbsolute(relativePath) ||
+      relativePath.split(path.sep).some(segment => segment.startsWith('.'))) {
+    res.writeHead(404);
+    return res.end('Not Found');
+  }
+
+  fs.stat(filePath, (statError, stats) => {
+    if (statError || !stats.isFile()) {
+      res.writeHead(404);
+      return res.end('Not Found');
+    }
+    fs.readFile(filePath, (readError, content) => {
+      if (readError) {
+        res.writeHead(500);
+        return res.end('Unable to read file');
+      }
+      res.writeHead(200, {
+        'Content-Type': MIME_TYPES[path.extname(filePath).toLowerCase()] || 'application/octet-stream',
+        'Content-Length': content.length,
+        'Cache-Control': 'no-cache'
+      });
+      if (req.method === 'HEAD') return res.end();
+      res.end(content);
+    });
+  });
+}
+
+function createServer() {
+  return http.createServer(async (req, res) => {
+    applySecurityHeaders(res);
+    let pathname;
+    try {
+      pathname = new URL(req.url, 'http://127.0.0.1').pathname;
+    } catch {
+      res.writeHead(400);
+      return res.end('Bad Request');
+    }
+
+    if (pathname === '/api' || pathname.startsWith('/api/')) {
+      return handleApi(req, res, pathname);
+    }
+    return serveStatic(req, res, pathname);
+  });
+}
 
 if (require.main === module) {
   if (!Number.isInteger(PORT) || PORT < 1 || PORT > 65535) {
     throw new Error('PORT must be an integer between 1 and 65535.');
   }
-  app.listen(PORT, HOST, () => {
+  createServer().listen(PORT, HOST, () => {
     console.log(`DrishtiX local demo server: http://${HOST}:${PORT}`);
     console.log(`Report API: ${DEMO_API_ENABLED ? 'enabled for local demo use' : 'disabled'}`);
   });
 }
 
-module.exports = { app, validateReport, ALLOWED_STATUSES, ALLOWED_PLATFORMS, DEMO_API_ENABLED };
+module.exports = {
+  createServer,
+  validateReport,
+  readReports,
+  ALLOWED_STATUSES,
+  ALLOWED_PLATFORMS,
+  DEMO_API_ENABLED
+};
