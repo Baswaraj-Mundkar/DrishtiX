@@ -18,12 +18,19 @@ for (const file of htmlFiles) {
   const fullPath = path.join(__dirname, '..', file);
   if (!fs.existsSync(fullPath)) continue;
   const html = fs.readFileSync(fullPath, 'utf8');
-  const inlineScript = /<script(?![^>]*\\bsrc\\s*=)[^>]*>([\\s\\S]*?)<\\/script>/gi;
-  let match;
+  const blocks = html.split('<script').slice(1);
   let index = 0;
-  while ((match = inlineScript.exec(html)) !== null) {
-    if (!match[1].trim()) continue;
-    new vm.Script(match[1], { filename: `${file}:inline-script-${++index}` });
+
+  for (const block of blocks) {
+    const tagEnd = block.indexOf('>');
+    if (tagEnd < 0) continue;
+    const tag = block.slice(0, tagEnd).toLowerCase();
+    if (tag.includes('src=')) continue;
+    const close = block.indexOf('</script>', tagEnd);
+    if (close < 0) continue;
+    const source = block.slice(tagEnd + 1, close);
+    if (!source.trim()) continue;
+    new vm.Script(source, { filename: `${file}:inline-script-${++index}` });
     checked += 1;
   }
 }
