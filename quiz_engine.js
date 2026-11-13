@@ -106,13 +106,15 @@ document.addEventListener('DOMContentLoaded', async () => {
         elements.text.innerText = qData.q;
         
         // Update Options with Shuffling
-        elements.options.innerHTML = '';
+        elements.options.replaceChildren();
         const shuffledOptions = shuffleArray([...qData.options]);
         
         shuffledOptions.forEach(opt => {
             const btn = document.createElement('div');
             btn.className = 'option-card';
-            btn.innerHTML = `<span>${opt.text}</span>`;
+            const optionText = document.createElement('span');
+            optionText.textContent = opt.text;
+            btn.appendChild(optionText);
             btn.onclick = () => handleChoice(opt.isCorrect, btn);
             elements.options.appendChild(btn);
         });
