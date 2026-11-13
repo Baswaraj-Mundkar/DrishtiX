@@ -1,7 +1,7 @@
 <!DOCTYPE html><html lang="en"><head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - DrishtiX</title>
+    <title>Demo Role Selection - DrishtiX</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,100..900;1,100..900&amp;family=Noto+Sans+Bengali:wght@100..900&amp;family=Noto+Sans+Devanagari:wght@100..900&amp;family=Noto+Sans+Gujarati:wght@100..900&amp;family=Noto+Sans+Kannada:wght@100..900&amp;family=Noto+Sans+Tamil:wght@100..900&amp;family=Noto+Sans+Telugu:wght@100..900&amp;display=swap" rel="stylesheet">
@@ -128,35 +128,30 @@
         <div class="auth-card">
             
             <div class="auth-header">
-                <h2 data-i18n="login_h2">Welcome Back</h2>
-                <p data-i18n="login_p">Log in to access your dashboard.</p>
+                <h2>Choose a demo role</h2>
+                <p>This page only selects a local demonstration role. It does not create or authenticate an account.</p>
             </div>
 
             <div class="auth-tabs" id="auth-tabs">
-                <div class="auth-tab active" data-role="user" onclick="switchLoginRole('user')" data-i18n="login_tab_1">User Login</div>
-                <div class="auth-tab" data-role="admin" onclick="switchLoginRole('admin')" data-i18n="login_tab_2">Admin Secure</div>
+                <div class="auth-tab active" data-role="user" onclick="switchLoginRole('user')">User Demo</div>
+                <div class="auth-tab" data-role="admin" onclick="switchLoginRole('admin')">Admin Demo</div>
             </div>
 
             <form id="login-form" class="auth-form">
                 <div class="form-group">
-                    <label for="username" data-i18n="login_lbl_1">Username / Full Name</label>
-                    <input type="text" id="username" class="form-control" placeholder="Enter your name..." data-i18n="login_ph_1" required="">
-                </div>
-                
-                <div class="form-group">
-                    <label for="password" data-i18n="login_lbl_2">Password</label>
-                    <input type="password" id="password" class="form-control" placeholder="Enter password (demo: any)" data-i18n="login_ph_2" required="">
+                    <label for="username">Display name</label>
+                    <input type="text" id="username" class="form-control" placeholder="Enter a display name" maxlength="80" required="">
                 </div>
 
                 <div id="admin-notice" class="admin-hint" style="display: none;">
-                    <strong data-i18n="login_hint_str">Admin Simulation:</strong> <br><span data-i18n="login_hint_1">Use Username:</span> <code>admin</code> <br><span data-i18n="login_hint_2">Password:</span> <code>1234</code>
+                    <strong>Demo admin view:</strong> This only switches the local interface role. It does not authenticate or authorize anyone. The report API is restricted to local development.
                 </div>
 
-                <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem; font-size: 1.1rem; padding: 1rem;" id="login-btn" data-i18n="login_btn">Secure Sign In</button>
+                <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem; font-size: 1.1rem; padding: 1rem;" id="login-btn">Continue to demo</button>
             </form>
             
             <div class="auth-footer">
-                <span data-i18n="login_foot_1">Don't have an account?</span> <strong data-i18n="login_foot_2">Simulated Auth allows any string for Users!</strong>
+                <strong>Demo role selection only.</strong> No accounts, passwords, or real authentication are implemented.
             </div>
         </div>
     </div>
@@ -180,30 +175,21 @@
             if(role === 'admin') {
                 document.getElementById('admin-notice').style.display = 'block';
                 document.getElementById('username').placeholder = "Enter 'admin'";
-                document.getElementById('password').placeholder = "Enter '1234'";
             } else {
                 document.getElementById('admin-notice').style.display = 'none';
                 document.getElementById('username').placeholder = "Enter your name...";
-                document.getElementById('password').placeholder = "Enter password (demo: any)";
             }
         }
 
         document.getElementById('login-form').addEventListener('submit', (e) => {
             e.preventDefault();
             const username = document.getElementById('username').value.trim();
-            const password = document.getElementById('password').value.trim();
-
-            if(!username || !password) return;
+            if(!username) return;
 
             if(selectedRole === 'admin') {
-                if(username.toLowerCase() === 'admin' && password === '1234') {
-                    localStorage.setItem('drishti_user_role', 'admin');
-                    localStorage.setItem('drishti_current_user', 'Administrator');
-                    alert('Log in successful as Administrator!');
-                    window.location.href = 'dashboard.html';
-                } else {
-                    alert('Invalid admin credentials. (Hint: Use admin / 1234)');
-                }
+                localStorage.setItem('drishti_user_role', 'admin');
+                localStorage.setItem('drishti_current_user', 'Demo Administrator');
+                window.location.href = 'dashboard.html';
             } else {
                 // Any name acts as a successfully registered user for demo
                 localStorage.setItem('drishti_user_role', 'user');

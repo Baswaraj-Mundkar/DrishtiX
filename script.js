@@ -1,5 +1,11 @@
 // script.js
 
+function escapeHTML(value) {
+    return String(value ?? '').replace(/[&<>"']/g, character => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+    })[character]);
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     console.log("script.js: Starting initialization...");
     try {
@@ -68,7 +74,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const firstName = currentUser.split(' ')[0];
             authLi.innerHTML = `
                 <div style="display:flex; align-items:center; gap:1rem; margin-left:1rem;">
-                    <span style="font-weight:600; color:var(--text);">${window.i18n.t('nav_hi', {name: firstName})} ${roleBadge}</span>
+                    <span style="font-weight:600; color:var(--text);">${escapeHTML(window.i18n.t('nav_hi', {name: firstName}))} ${roleBadge}</span>
                     <a href="javascript:void(0)" onclick="logoutDrishtiX()" style="color:var(--danger, #ef4444); font-size:0.9rem; font-weight:600; padding:0; border:none; background:none;">${window.i18n.t('logout_btn')}</a>
                 </div>
             `;
@@ -167,7 +173,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const currentUser = localStorage.getItem('drishti_current_user');
         
         // UX Enhancement: Restore Draft if exists
-        const draft = JSON.parse(localStorage.getItem('drishti_draft_report'));
+        let draft = null;
+        try { draft = JSON.parse(localStorage.getItem('drishti_draft_report') || 'null'); }
+        catch (error) { localStorage.removeItem('drishti_draft_report'); }
         if(draft) {
             const h = document.getElementById('headline');
             const p = document.getElementById('platform');
@@ -199,8 +207,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 reportForm.innerHTML = `
                     <div class="fade-in appear" style="text-align:center; padding: 4rem 1rem; border: 2px dashed var(--border); border-radius: 12px; background: var(--accent-soft); margin-top: 1rem;">
                         <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" style="margin-bottom: 1.5rem;"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
-                        <h3 style="color: var(--text); margin-bottom: 0.5rem; font-size: 1.8rem;">Secure Authentication Required</h3>
-                        <p style="color: var(--text-muted); margin-bottom: 2rem; font-size: 1.1rem; max-width: 500px; margin-left: auto; margin-right: auto;">To maintain the integrity of our database, you must sign in to submit this incident. We have securely saved your draft.</p>
+                        <h3 style="color: var(--text); margin-bottom: 0.5rem; font-size: 1.8rem;">Demo role selection required</h3>
+                        <p style="color: var(--text-muted); margin-bottom: 2rem; font-size: 1.1rem; max-width: 500px; margin-left: auto; margin-right: auto;">Choose a display role to continue with this local academic demonstration. This is not real authentication.</p>
                         <a href="login.html" class="btn btn-primary" style="padding: 1rem 2.5rem; font-size: 1.1rem;">Go to Login Portal</a>
                     </div>
                 `;
@@ -232,7 +240,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 Platform: platform,
                 Description: description,
                 Lat: lat,
-                Lng: lng
+                Lng: lng,
+                URL: document.getElementById('newsLink') ? document.getElementById('newsLink').value.trim() : ''
             };
 
             fetch('/api/reports', {
@@ -271,50 +280,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // --- 6. Migration Helper: LocalStorage to Excel ---
-    function migrateLocalStorageToExcel() {
-        const localRS = localStorage.getItem('drishti_reports');
-        if (!localRS) return;
-
-        try {
-            const reports = JSON.parse(localRS);
-            if (!Array.isArray(reports) || reports.length === 0) return;
-
-            console.log(`DrishtiX: Migrating ${reports.length} reports to Excel...`);
-            
-            // Map keys and preserve data
-            const migrationQueue = reports.map(r => ({
-                Headline: r.headline,
-                Platform: r.platform,
-                Description: r.description,
-                Name: r.name,
-                Lat: r.lat,
-                Lng: r.lng,
-                Status: r.status || 'Pending',
-                Date: r.date || new Date().toLocaleDateString()
-            }));
-
-            // Sequentially post to avoid potential write locks (though Excel lib handles it)
-            Promise.all(migrationQueue.map(item => 
-                fetch('/api/reports', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(item)
-                })
-            ))
-            .then(() => {
-                console.log("DrishtiX: Migration successful. Clearing localStorage.");
-                localStorage.removeItem('drishti_reports');
-            })
-            .catch(err => console.error("Migration Error:", err));
-
-        } catch (e) {
-            console.error("Migration failed:", e);
-        }
-    }
-
-    migrateLocalStorageToExcel();
-
     // --- 7. About Section Editor Logic ---
     initAboutEditor();
 
@@ -342,7 +307,7 @@ function updateSessionSection() {
                     ${currentUser.charAt(0).toUpperCase()}
                 </div>
                 <div>
-                    <h3 style="margin-bottom: 0.25rem;">${window.i18n.t('nav_hi', {name: currentUser})}</h3>
+                    <h3 style="margin-bottom: 0.25rem;">${escapeHTML(window.i18n.t('nav_hi', {name: currentUser}))}</h3>
                     <span class="badge" style="background: var(--accent-soft); color: var(--accent); padding: 0.2rem 0.8rem; border-radius: 5px; font-weight: bold; font-size: 0.85rem;">${window.i18n.t('acc_badge', {role: roleLabel})}</span>
                 </div>
                 <div style="display: flex; flex-direction: column; gap: 0.8rem; width: 100%;">
@@ -506,38 +471,64 @@ function initHomeMap() {
     }).addTo(map);
 
     fetch('/api/reports')
-    .then(res => res.json())
+    .then(res => {
+        if (!res.ok) throw new Error('Local report API unavailable');
+        return res.json();
+    })
     .then(allReports => {
-        let bounds = [];
-        allReports.forEach(r => {
-            if(r.Lat && r.Lng) {
-                const lat = parseFloat(r.Lat);
-                const lng = parseFloat(r.Lng);
-                if(!isNaN(lat) && !isNaN(lng)) {
-                    let color = "red";
-                    if(r.Status === "Verified True") color = "green";
-                    if(r.Status === "Pending") color = "orange";
-                    
-                    const circleIcon = L.divIcon({
-                        className: 'custom-div-icon',
-                        html: `<div class="hotspot-pulse" style="background-color:${color}; --pulse-color:${color};"></div>`,
-                        iconSize: [20, 20],
-                        iconAnchor: [10, 10]
-                    });
-
-                    L.marker([lat, lng], {icon: circleIcon}).addTo(map)
-                     .bindPopup(`<b>${r.Platform}</b><br>${r.Headline}<br><i>Status: ${r.Status || 'Pending'}</i>`);
-                     
-                    bounds.push([lat, lng]);
-                }
+        if (!Array.isArray(allReports)) throw new Error('Unexpected report response');
+        if (allReports.length === 0) {
+            try {
+                const samples = JSON.parse(localStorage.getItem('drishti_reports') || '[]');
+                if (Array.isArray(samples)) allReports = samples;
+            } catch (error) {
+                localStorage.removeItem('drishti_reports');
             }
+        }
+        renderReportMarkers(allReports);
+    })
+    .catch(() => {
+        try {
+            const samples = JSON.parse(localStorage.getItem('drishti_reports') || '[]');
+            renderReportMarkers(Array.isArray(samples) ? samples : []);
+        } catch (error) {
+            localStorage.removeItem('drishti_reports');
+            renderReportMarkers([]);
+        }
+    });
+
+    function renderReportMarkers(allReports) {
+        const bounds = [];
+        allReports.forEach(r => {
+            const latValue = Number(r.Lat ?? r.lat);
+            const lngValue = Number(r.Lng ?? r.lng);
+            if (!Number.isFinite(latValue) || latValue < -90 || latValue > 90 ||
+                !Number.isFinite(lngValue) || lngValue < -180 || lngValue > 180) return;
+
+            const status = String(r.Status ?? r.status ?? 'Pending');
+            const color = status === 'Verified True' ? 'green' : status === 'Verified Fake' ? 'red' : 'orange';
+            const circleIcon = L.divIcon({
+                className: 'custom-div-icon',
+                html: `<div class="hotspot-pulse" style="background-color:${color}; --pulse-color:${color};"></div>`,
+                iconSize: [20, 20],
+                iconAnchor: [10, 10]
+            });
+
+            const marker = L.marker([latValue, lngValue], { icon: circleIcon }).addTo(map);
+            const popup = document.createElement('div');
+            const platform = document.createElement('strong');
+            platform.textContent = String(r.Platform ?? r.platform ?? 'Unknown');
+            const headline = document.createElement('div');
+            headline.textContent = String(r.Headline ?? r.headline ?? '');
+            const reportStatus = document.createElement('em');
+            reportStatus.textContent = r.isDemo ? 'Sample data — illustrative only; not fact-checked' : `Status: ${status}`;
+            popup.append(platform, document.createElement('br'), headline, document.createElement('br'), reportStatus);
+            marker.bindPopup(popup);
+            bounds.push([latValue, lngValue]);
         });
 
-        if(bounds.length > 0) {
-            map.fitBounds(bounds, {padding: [50, 50], maxZoom: 12});
-        }
-    })
-    .catch(err => console.error("Home Map Fetch Error:", err));
+        if (bounds.length > 0) map.fitBounds(bounds, { padding: [50, 50], maxZoom: 12 });
+    }
 }
 
 function initAboutEditor() {
@@ -551,12 +542,12 @@ function initAboutEditor() {
         
         // Load saved data
         if (localStorage.getItem(key)) {
-            el.innerText = localStorage.getItem(key);
+            el.textContent = localStorage.getItem(key);
         }
         
         // Save on input or blur
         el.addEventListener('input', () => {
-            localStorage.setItem(key, el.innerText);
+            localStorage.setItem(key, el.textContent);
         });
         
         // Prevent Enter key from making new lines, just blur
@@ -584,6 +575,12 @@ function initAboutEditor() {
     fileInput.addEventListener('change', (e) => {
         const file = e.target.files[0];
         if (!file || !currentActiveImageElement || !currentActiveImageKey) return;
+        const allowedImageTypes = new Set(['image/jpeg', 'image/png', 'image/webp', 'image/gif']);
+        if (!allowedImageTypes.has(file.type) || file.size > 2 * 1024 * 1024) {
+            alert('Choose a PNG, JPEG, WebP, or GIF image smaller than 2 MB.');
+            fileInput.value = '';
+            return;
+        }
         
         const reader = new FileReader();
         reader.onload = function(event) {
@@ -606,8 +603,11 @@ function initAboutEditor() {
         const defaultIcon = index >= 4 ? (index === 4 ? "👨‍🏫" : "👩‍🏫") : "👤";
 
         // Load saved image
-        if (localStorage.getItem(imgKey)) {
-            el.innerHTML = `<img src="${localStorage.getItem(imgKey)}" alt="Member Image">`;
+        const storedImage = localStorage.getItem(imgKey);
+        if (storedImage && /^data:image\/(?:png|jpeg|webp|gif);base64,/i.test(storedImage)) {
+            el.innerHTML = `<img src="${storedImage}" alt="Member Image">`;
+        } else if (storedImage) {
+            localStorage.removeItem(imgKey);
         }
 
         // Click to open file picker OR delete if already exists
@@ -630,14 +630,32 @@ function initAboutEditor() {
 
 function seedDemoReports() {
     const existing = localStorage.getItem('drishti_reports');
-    if (existing && JSON.parse(existing).length > 3) return; 
+    const sampleNames = new Set(['System Admin', 'Official Source', 'Collector Office', 'Govt Portal', 'Sample Data']);
+    try {
+        const existingReports = JSON.parse(existing || '[]');
+        if (Array.isArray(existingReports) && existingReports.length > 3) {
+            const hasOldSample = existingReports.some(report => sampleNames.has(report.name));
+            if (!hasOldSample) return;
+            existingReports.forEach(report => {
+                if (sampleNames.has(report.name)) {
+                    report.status = 'Pending';
+                    report.isDemo = true;
+                    report.name = 'Sample Data';
+                }
+            });
+            localStorage.setItem('drishti_reports', JSON.stringify(existingReports));
+            return;
+        }
+    } catch (error) {
+        localStorage.removeItem('drishti_reports');
+    } 
 
     const demoData = [
-        { id: 1, lat: 19.0760, lng: 72.8777, platform: "WhatsApp", headline: "Deepfake video of local politician circulated in Mumbai", status: "Verified Fake", name: "System Admin", date: "2026-03-20" },
-        { id: 2, lat: 28.7041, lng: 77.1025, platform: "Twitter", headline: "Misleading pollution statistics shared during Delhi peak hours", status: "Pending", name: "Official Source", date: "2026-03-21" },
-        { id: 3, lat: 12.9716, lng: 77.5946, platform: "Facebook", headline: "Scam link promising free water distribution in Bangalore", status: "Verified Fake", name: "System Admin", date: "2026-03-22" },
-        { id: 4, lat: 18.5204, lng: 73.8567, platform: "WhatsApp", headline: "Rumors about PCCOER college closure due to festival", status: "Verified Fake", name: "Collector Office", date: "2026-03-23" },
-        { id: 5, lat: 15.2993, lng: 74.1240, platform: "Instagram", headline: "Old beach cleaning photos shared as current Goa cleanup", status: "Verified True", name: "Govt Portal", date: "2026-03-24" }
+        { id: 1, lat: 19.0760, lng: 72.8777, platform: "WhatsApp", headline: "Deepfake video of local politician circulated in Mumbai", status: "Pending", isDemo: true, name: "Sample Data", date: "2026-03-20" },
+        { id: 2, lat: 28.7041, lng: 77.1025, platform: "Twitter", headline: "Misleading pollution statistics shared during Delhi peak hours", status: "Pending", isDemo: true, name: "Sample Data", date: "2026-03-21" },
+        { id: 3, lat: 12.9716, lng: 77.5946, platform: "Facebook", headline: "Scam link promising free water distribution in Bangalore", status: "Pending", isDemo: true, name: "Sample Data", date: "2026-03-22" },
+        { id: 4, lat: 18.5204, lng: 73.8567, platform: "WhatsApp", headline: "Rumors about PCCOER college closure due to festival", status: "Pending", isDemo: true, name: "Sample Data", date: "2026-03-23" },
+        { id: 5, lat: 15.2993, lng: 74.1240, platform: "Instagram", headline: "Old beach cleaning photos shared as current Goa cleanup", status: "Pending", isDemo: true, name: "Sample Data", date: "2026-03-24" }
     ];
 
     localStorage.setItem('drishti_reports', JSON.stringify(demoData));

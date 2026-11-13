@@ -61,7 +61,9 @@
     </header>
 
     <section class="section">
-        
+        <div class="container" style="margin-bottom: 1.5rem;">
+            <p role="note" style="padding: 1rem; border: 1px solid var(--border); border-radius: 10px; color: var(--text-muted);">Local academic demo only. Login roles are simulated, not real authentication. Do not submit real personal or sensitive information.</p>
+        </div>
         <div class="tabs fade-in">
             <button class="tab-btn active" id="tab-user" onclick="switchTab('user')" data-i18n="tab_user">User View (My Reports)</button>
             <button class="tab-btn" id="tab-admin" onclick="switchTab('admin')" data-i18n="tab_admin">Admin View (All Reports)</button>
@@ -88,6 +90,9 @@
     <script src="i18n.js"></script>
     <script src="script.js"></script>
     <script>
+        function escapeHTML(value) {
+            return String(value ?? '').replace(/[&<>"']/g, character => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[character]);
+        }
         const currentUser = localStorage.getItem('drishti_current_user');
         const userRole = localStorage.getItem('drishti_user_role');
         
@@ -128,7 +133,7 @@
                 const content = document.getElementById('dashboard-content');
                 
                 fetch('/api/reports')
-                .then(res => res.json())
+                .then(res => { if (!res.ok) throw new Error('Report API unavailable'); return res.json(); })
                 .then(allReports => {
                     let filtered = [];
                     if (currentTab === 'user') {
@@ -164,26 +169,26 @@
                         const status = r.Status || r.status || 'Pending';
                         const statusKey = status === 'Verified True' ? 'status_true' : status === 'Verified Fake' ? 'status_fake' : 'status_pending';
                         const statusLabel = window.i18n.t(statusKey);
-                        const id = r.ID || r.id;
+                        const id = String(r.ID || r.id || '').replace(/[^A-Za-z0-9_-]/g, '');
                         
                         return `
                             <div class="report-card">
                                 <div class="report-meta">
                                     <div>
-                                        <strong>${window.i18n.t('dash_reporter')}:</strong> ${r.Name || r.name || 'Anonymous'} &nbsp;&nbsp;|&nbsp;&nbsp;
-                                        <strong>${window.i18n.t('dash_date')}:</strong> ${r.Date || r.date || 'N/A'}
+                                        <strong>${window.i18n.t('dash_reporter')}:</strong> ${escapeHTML(r.Name || r.name || 'Anonymous')} &nbsp;&nbsp;|&nbsp;&nbsp;
+                                        <strong>${window.i18n.t('dash_date')}:</strong> ${escapeHTML(r.Date || r.date || 'N/A')}
                                     </div>
                                     <div>
-                                        <span class="badge" style="background: ${status === 'Verified True' ? 'rgba(16, 185, 129, 0.1)' : status === 'Verified Fake' ? 'rgba(239, 68, 68, 0.1)' : 'rgba(245, 158, 11, 0.1)'}; color: ${status === 'Verified True' ? '#10b981' : status === 'Verified Fake' ? '#ef4444' : '#f59e0b'}; margin-right: 0.5rem;">${statusLabel}</span>
-                                        <span class="badge">${r.Platform || r.platform}</span>
+                                        <span class="badge" style="background: ${status === 'Verified True' ? 'rgba(16, 185, 129, 0.1)' : status === 'Verified Fake' ? 'rgba(239, 68, 68, 0.1)' : 'rgba(245, 158, 11, 0.1)'}; color: ${status === 'Verified True' ? '#10b981' : status === 'Verified Fake' ? '#ef4444' : '#f59e0b'}; margin-right: 0.5rem;">${escapeHTML(statusLabel)}</span>
+                                        <span class="badge">${escapeHTML(r.Platform || r.platform || 'Unknown')}</span>
                                     </div>
                                 </div>
-                                <h3>${r.Headline || r.headline}</h3>
-                                <p class="report-desc">${r.Description || r.description}</p>
+                                <h3>${escapeHTML(r.Headline || r.headline || '')}</h3>
+                                <p class="report-desc">${escapeHTML(r.Description || r.description || '')}</p>
                                 ${userRole === 'admin' ? `
                                     <div style="margin-top: 1.5rem; border-top: 1px solid var(--border); padding-top: 1rem;">
                                         <label style="font-weight: 500; font-size: 0.9rem; margin-right: 0.5rem;">${window.i18n.t('dash_admin_action')}</label>
-                                        <select class="form-control" style="width: auto; padding: 0.4rem; display: inline-block; font-size: 0.9rem;" onchange="updateReportStatus(${id}, this.value)">
+                                        <select class="form-control" style="width: auto; padding: 0.4rem; display: inline-block; font-size: 0.9rem;" onchange="updateReportStatus('${id}', this.value)">
                                             <option value="Pending" ${status === 'Pending' ? 'selected' : ''}>${window.i18n.t('status_pending')}</option>
                                             <option value="Verified Fake" ${status === 'Verified Fake' ? 'selected' : ''}>${window.i18n.t('status_fake')}</option>
                                             <option value="Verified True" ${status === 'Verified True' ? 'selected' : ''}>${window.i18n.t('status_true')}</option>
