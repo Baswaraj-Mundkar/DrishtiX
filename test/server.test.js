@@ -59,6 +59,15 @@ test('serves the app locally, hides dotfiles, and keeps the API disabled by defa
     const hidden = await fetch(`${baseURL}/.env.example`);
     assert.equal(hidden.status, 404);
 
+    const serverSource = await fetch(`${baseURL}/server.js`);
+    assert.equal(serverSource.status, 404);
+
+    const lockfile = await fetch(`${baseURL}/package-lock.json`);
+    assert.equal(lockfile.status, 404);
+
+    const frontendScript = await fetch(`${baseURL}/script.js`);
+    assert.equal(frontendScript.status, 200);
+
     const api = await fetch(`${baseURL}/api/reports`);
     assert.equal(api.status, 503);
   } finally {
