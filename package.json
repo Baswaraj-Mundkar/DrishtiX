@@ -6,8 +6,8 @@
   "scripts": {
     "dev": "node server.js",
     "start": "node server.js",
-    "build": "echo 'No build process needed for static site'",
-    "serve": "node server.js"
+    "test": "node --test",
+    "check": "node --check server.js && node --check script.js"
   },
   "keywords": [
     "fake-news",
@@ -17,13 +17,11 @@
     "misinformation"
   ],
   "author": "DrishtiX Team",
-  "license": "MIT",
+  "license": "UNLICENSED",
+  "engines": {
+    "node": ">=18"
+  },
   "dependencies": {
-    "body-parser": "^2.2.2",
-    "cheerio": "^1.2.0",
-    "cors": "^2.8.6",
-    "express": "^5.2.1",
-    "run": "^1.5.0",
-    "xlsx": "^0.18.5"
+    "express": "^5.2.1"
   }
 }
