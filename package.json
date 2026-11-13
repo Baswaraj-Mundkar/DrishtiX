@@ -7,7 +7,7 @@
     "dev": "node server.js",
     "start": "node server.js",
     "test": "node --test",
-    "check": "node --check server.js && node --check script.js"
+    "check": "node --check server.js && node --check script.js && node scripts/check-inline-scripts.js"
   },
   "keywords": [
     "fake-news",
