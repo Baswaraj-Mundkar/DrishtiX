@@ -74,7 +74,7 @@ function validateReport(body) {
   const Headline = typeof body.Headline === 'string' ? body.Headline.trim() : '';
   const Platform = typeof body.Platform === 'string' ? body.Platform.trim() : '';
   const Description = typeof body.Description === 'string' ? body.Description.trim() : '';
-  const URL = typeof body.URL === 'string' ? body.URL.trim() : '';
+  const newsURL = typeof body.URL === 'string' ? body.URL.trim() : '';
 
   if (!Name || Name.length > 80) return { error: 'Name is required and must be 80 characters or fewer.' };
   if (Headline.length < 3 || Headline.length > 240) return { error: 'Headline must be between 3 and 240 characters.' };
@@ -82,10 +82,10 @@ function validateReport(body) {
   if (Description.length < 5 || Description.length > 3000) return { error: 'Description must be between 5 and 3000 characters.' };
 
   let safeURL = '';
-  if (URL) {
-    if (URL.length > 2048) return { error: 'News URL is too long.' };
+  if (newsURL) {
+    if (newsURL.length > 2048) return { error: 'News URL is too long.' };
     try {
-      const parsedURL = new URL(URL);
+      const parsedURL = new URL(newsURL);
       if (!['http:', 'https:'].includes(parsedURL.protocol)) return { error: 'News URL must use HTTP or HTTPS.' };
       safeURL = parsedURL.toString();
     } catch {
